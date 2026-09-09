@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEGA PORTAL ANIMAL 🏋🏿‍♂️ - Windows 98 Edition</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋🏿‍♂️</text></svg>">
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- LIBRERÍA PARA LEER ARCHIVOS DE EXCEL DIRECTAMENTE -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      background-color: #008080;
+      font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+      user-select: none;
+    }
+
+    .win-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 4px 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    table.win-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      color: #000000;
+    }
+    table.win-table th, table.win-table td {
+      border: 1px solid #7f9db9;
+      padding: 2px 4px;
+      font-size: 11px;
+    }
+    table.win-table th {
+      background: #c0c0c0;
+      color: #000000;
+      box-shadow: inset 1px 1px #ffffff, inset -1px -1px #808080;
+      text-align: left;
+    }
+
+    .lote-header-row {
+      background-color: #000080 !important;
+      color: #ffffff !important;
+      font-weight: bold;
+    }
+
+    .col-right {
+      text-align: right !important;
+    }
+
+    .btn-sq-micro {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      padding: 0 !important;
+      margin: 0 1px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      line-height: 1;
+      border: 1px solid #7f9db9;
+      background: #e0e0e0;
+      cursor: pointer;
+      box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
+    }
+    .btn-sq-micro:hover {
+      background: #ffffff;
+    }
+    .btn-sq-micro:active {
+      box-shadow: inset -1px -1px #fff, inset 1px 1px #808080;
+    }
+
+    .btn-sq-danger {
+      background: #c00000;
+      color: #ffffff;
+      border-color: #800000;
+    }
+    .btn-sq-danger:hover {
+      background: #ff0000;
+    }
+
+    .row-cargado {
+      background-color: #e6f4ea !important;
+    }
+
+    #resizer {
+      width: 6px;
+      cursor: col-resize;
+      background: #c0c0c0;
+      border-left: 1px solid #ffffff;
+      border-right: 1px solid #808080;
+      transition: background 0.1s;
+    }
+    #resizer:hover, #resizer.resizing {
+      background: #000080;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex p-2 gap-0 overflow-hidden">
+
+  <aside id="leftPanel" class="window shrink-0 flex flex-col h-[calc(100vh-1rem)] sticky top-2" style="width: 280px; min-width: 220px; max-width: 500px;">
+    <div class="window-body flex-1 flex flex-col space-y-2 p-2 overflow-hidden">
+      
+      <div class="space-y-2 shrink-0">
+        <div class="border-2 border-gray-400 p-1.5 bg-white flex items-center gap-2">
+          <span class="text-xl">🏋🏿‍♂️</span>
+          <div class="leading-none">
+            <span class="font-black text-[10px] uppercase block text-blue-900 tracking-tighter">
+              BIENVENIDO AL MEGA PORTAL
+            </span>
+            <span class="font-black text-[12px] uppercase block text-red-700 tracking-widest">
+              ¡ANIMAL, BROTHER! 🔥
+            </span>
+          </div>
+        </div>
+
+        <nav class="space-y-1">
+          <button id="nav-verificador" onclick="cambiarSeccion('verificador')" class="win-nav-btn text-xs font-bold">
+            🔍 INTERBANKING AMEO
+          </button>
+          <button id="nav-galicia" onclick="cambiarSeccion('galicia')" class="win-nav-btn text-xs font-bold">
+            🏦 GALICIA CRACK
+          </button>
+          <button id="nav-historial" onclick="cambiarSeccion('historial')" class="win-nav-btn text-xs font-bold">
+            📜 HISTORIAL Y BÚSQUEDA
+          </button>
+        </nav>
+      </div>
+
+      <hr class="border-gray-400 my-1" />
+
+      <div class="flex-1 flex flex-col space-y-1.5 overflow-hidden">
+        <div class="font-bold text-[11px] bg-blue-900 text-white px-1 py-0.5 flex justify-between items-center">
+          <span>📅 CONSOLIDADO GROSO DEL DÍA</span>
+        </div>
+
+        <div class="flex items-center justify-between bg-white p-0.5 border border-gray-400 text-[10px]">
+          <div class="flex items-center gap-0.5">
+            <button onclick="cambiarDia(-1)" class="btn-sq-micro" title="Anterior">◄</button>
+            <input type="date" id="datePicker" onchange="actualizarFechaManual()" class="border font-mono font-bold text-[9px] h-4 px-0.5 w-20" />
+            <button onclick="cambiarDia(1)" class="btn-sq-micro" title="Siguiente">►</button>
+          </div>
+          <span class="font-bold text-[9px] shrink-0 ml-1">Excel: <strong id="formattedDateHeader" class="text-black">--/--/--</strong></span>
+        </div>
+
+        <div class="bg-gray-100 p-2 border-2 border-gray-500 shadow-inner rounded-sm space-y-1">
+          <div class="flex justify-between items-baseline border-b border-gray-300 pb-1">
+            <span class="font-bold text-[11px] text-gray-700 uppercase tracking-wide">Pagos Totales:</span>
+            <span class="font-black text-lg text-blue-900 font-mono" id="dailyTotalCount">0</span>
+          </div>
+          <div class="text-right pt-0.5">
+            <span class="block text-[9px] font-bold text-gray-500 uppercase">Monto Total Día</span>
+            <span class="font-black text-xl text-green-700 font-mono leading-tight">$<span id="dailyTotalAmount">0,00</span></span>
+          </div>
+          <div class="text-[9px] text-gray-600 font-bold flex justify-between pt-0.5 border-t border-gray-200">
+            <span>📦 Lotes Masivos:</span>
+            <span id="dailyLotesCount" class="text-black">0</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="flex gap-1">
+            <button id="btnCopiarDiario" onclick="copiarConsolidadoDiario()" disabled class="flex-1 font-bold text-[10px] py-0.5">📋 COPIAR TODO (EXCEL)</button>
+            <button onclick="vaciarConsolidadoDiario()" class="font-bold text-red-700 text-[10px] px-1.5 py-0.5" title="Vaciar">🗑️</button>
+          </div>
+          
+          <div class="flex gap-1">
+            <button id="btnGuardarHistorial" onclick="guardarPendientesEnHistorial()" disabled class="flex-1 font-bold text-[10px] py-1 bg-green-200 hover:bg-green-300 text-green-900 border border-green-600">
+              📥 CARGAR PENDIENTES AL HISTORIAL
+            </button>
+            <button onclick="resetearEstadosCargados()" class="font-bold text-blue-900 text-[10px] px-1.5 py-1 border border-blue-600 bg-blue-100 hover:bg-blue-200" title="Resetear marcas de cargado">🔄</button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto bg-white border border-gray-400">
+          <table class="win-table">
+            <thead>
+              <tr>
+                <th id="thFechaLote">FECHA</th>
+                <th>CUIT / NOMBRE</th>
+                <th class="col-right">IMPORTE</th>
+                <th class="text-center">ESTADO</th>
+                <th class="text-center">x</th>
+              </tr>
+            </thead>
+            <tbody id="dailyTableBody" class="font-mono">
+              <tr><td colspan="5" class="text-center text-gray-500 py-4 text-[10px]">Sin nada por acá todavía, bro.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="border-2 border-gray-400 p-1 bg-white space-y-1 shrink-0 mt-auto">
+        <h2 class="font-bold text-[10px] border-b border-gray-400 pb-0.5">🏦 TOTALAZO POR CUENTA</h2>
+        <div id="cuentasDesglose" class="space-y-0.5 text-[10px] font-mono">
+          <p class="text-gray-500 italic">Sin datos rey</p>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <div id="resizer" title="Arrastrá para cambiar el ancho"></div>
+
+  <main class="flex-1 overflow-y-auto space-y-3 h-[calc(100vh-1rem)] pl-2 pr-1 min-w-0">
+
+    <section id="sec-verificador" class="window space-y-3">
+      <div class="title-bar">
+        <div class="title-bar-text">⚡ Verificador Interbanking / Lector de Lotes Titánico</div>
+        <div class="title-bar-controls"><button aria-label="Close"></button></div>
+      </div>
+
+      <div class="window-body space-y-3">
+        <fieldset class="space-y-2">
+          <legend class="font-bold text-xs">⚡ 1. Lotes Masivos (ORG vs Beneficiario)</legend>
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-[11px]">Pegá el texto completo del lote acá:</p>
+            <button onclick="resetearLotes()" class="text-xs">🧹 Limpiar pura sangre</button>
+          </div>
+          <textarea id="inputTextLotes" rows="4" class="w-full font-mono text-xs p-2 bg-white" placeholder="BBVA - CC - $ - 2580049413&#10;30709138398 - 0170258520000000494133&#10;MADERAS Y SERVICIOS SRL 80.000,00 19/08/2026&#10;INTER 288 Maderas Y Servicios..."></textarea>
+          
+          <button onclick="procesarLotes()" class="w-full font-bold uppercase py-1 text-xs">🔍 PROCESAR, VALIDAR Y ENVIAR AL CONSOLIDADO</button>
+        </fieldset>
+
+        <fieldset class="space-y-2">
+          <legend class="font-bold text-xs">📋 2. Pagos Manuales / Directos</legend>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            
+            <div class="space-y-2 border p-2 bg-gray-100 flex flex-col justify-between">
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                  <label class="font-bold text-[11px]">✏️ 2.1 Texto Manual</label>
+                  <button onclick="resetearManualTexto()" class="text-xs">🧹</button>
+                </div>
+                <textarea id="inputTextManual" rows="3" class="w-full font-mono text-xs p-1 bg-white" placeholder="Pegá el texto acá bro..."></textarea>
+              </div>
+              <button onclick="procesarManualTexto()" class="w-full font-bold py-1 text-xs mt-1">⚡ PROCESAR Y AGREGAR</button>
+            </div>
+
+            <div class="space-y-2 border p-2 bg-gray-100 flex flex-col justify-between">
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                  <label class="font-bold text-[11px]">📎 2.2 Archivo Manual</label>
+                  <button onclick="resetearManualFile()" class="text-xs">🧹</button>
+                </div>
+                <div onclick="document.getElementById('fileInputManual').click()" class="border-2 border-dashed border-gray-400 bg-white p-2 text-center cursor-pointer">
+                  <span class="text-lg">📄</span>
+                  <p class="text-[11px] font-bold" id="fileNameManualDisplay">Elegir .TXT / .CSV</p>
+                  <input type="file" id="fileInputManual" accept=".txt,.csv" class="hidden" onchange="cargarArchivoManual(event)" />
+                </div>
+              </div>
+              <button onclick="procesarManualArchivo()" class="w-full font-bold py-1 text-xs mt-1">🚀 PROCESAR Y AGREGAR</button>
+            </div>
+
+          </div>
+        </fieldset>
+
+        <div id="resultsContainer" class="hidden space-y-2 border-2 border-gray-400 p-2 bg-yellow-50">
+          
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-300 pb-2 bg-white p-1.5 border">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO / NOMBRE DE LOTE:</span>
+              <input type="text" id="postLoteNameInput" oninput="actualizarNombreLoteActual(this.value)" class="font-mono text-xs font-bold border-2 border-blue-600 px-2 py-0.5 bg-yellow-100 focus:bg-white w-48" placeholder="Ej: LOTE 405" />
+            </div>
+            <button id="btnCopiarUltimo" onclick="copiarTablaUltima()" disabled class="font-bold text-xs">📋 COPIAR ÚLTIMA CARGA</button>
+          </div>
+
+          <div id="summaryCards" class="grid grid-cols-4 gap-2 text-center text-[11px] font-bold"></div>
+          
+          <div class="space-y-1">
+            <h3 class="font-bold text-xs">🔍 Auditoría del Lote:</h3>
+            <div class="overflow-x-auto bg-white border border-gray-400 max-h-60">
+              <table class="win-table">
+                <thead>
+                  <tr>
+                    <th>#</th><th>Tipo</th><th>CUIT / CBU</th><th>Nombre</th><th class="col-right">Importe</th><th class="text-center">CTA</th><th class="text-center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTable" class="font-mono"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="sec-galicia" class="window space-y-3 hidden">
+      <div class="title-bar">
+        <div class="title-bar-text">🏦 Lotes Galicia Implacables</div>
+        <div class="title-bar-controls"><button aria-label="Close"></button></div>
+      </div>
+
+      <div class="window-body space-y-3">
+        <div class="flex items-center gap-2 bg-gray-100 p-2 border border-gray-400">
+          <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO DE LOTE GALICIA:</span>
+          <input type="text" id="galiciaLoteNameInput" value="GALICIA 1" class="font-mono text-xs font-bold border-2 border-blue-600 px-2 py-0.5 bg-white w-40" placeholder="Ej: GALICIA 1" oninput="actualizarNombreLoteGalicia(this.value)" />
+        </div>
+
+        <div id="dropZoneGalicia" onclick="document.getElementById('fileInputGalicia').click()" class="border-2 border-dashed border-gray-400 bg-white p-6 text-center cursor-pointer space-y-1">
+          <div class="text-2xl">🚀</div>
+          <div class="font-bold text-xs uppercase">Soltá el TXT de Galicia acá, máquina</div>
+          <input type="file" id="fileInputGalicia" accept=".txt" class="hidden" />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btnCopiarGalicia" onclick="copiarTablaGalicia()" disabled class="flex-1 font-bold py-1 text-xs">📋 COPIAR TABLA GALICIA</button>
+          <button onclick="resetearGalicia()" title="Limpiar" class="text-xs">🧹</button>
+        </div>
+
+        <div id="containerGalicia" class="hidden space-y-2">
+          <h3 class="font-bold text-xs">⚡ Tabla Galicia Impecable (<span id="totalGaliciaCount">0</span> registros)</h3>
+          <div class="overflow-x-auto bg-white border border-gray-400 max-h-96">
+            <table class="win-table font-mono">
+              <thead>
+                <tr>
+                  <th>CUIT</th><th>APELLIDO</th><th class="col-right">IMPORTE</th><th>CBU</th><th class="text-center">ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyGalicia"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORIAL CON BUSCADOR, IMPORTADOR DE EXCEL Y PREVISUALIZACIÓN EN MEMORIA -->
+    <section id="sec-historial" class="window space-y-3 hidden">
+      <div class="title-bar">
+        <div class="title-bar-text">📜 Historial General y Búsqueda de Pagos</div>
+        <div class="title-bar-controls"><button aria-label="Close"></button></div>
+      </div>
+
+      <div class="window-body space-y-3">
+        
+        <fieldset class="bg-gray-100 p-2 border border-gray-400 space-y-2">
+          <legend class="font-bold text-xs text-blue-900">🔍 FILTROS AVANZADOS EN TIEMPO REAL</legend>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            
+            <div class="space-y-0.5">
+              <label class="font-bold text-[11px] block">📅 Selección de Fecha:</label>
+              <input type="date" id="filtroHistorialFecha" onchange="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full cursor-pointer" />
+            </div>
+
+            <div class="space-y-0.5">
+              <label class="font-bold text-[11px] block">🏦 Cuenta Originante:</label>
+              <input type="text" id="filtroHistorialCuenta" oninput="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full" placeholder="Ej: 5133 o 229" />
+            </div>
+
+            <div class="space-y-0.5">
+              <label class="font-bold text-[11px] block">🔎 CUIT / Beneficiario / Lote / CBU:</label>
+              <input type="text" id="filtroHistorialGeneral" oninput="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full" placeholder="Escribí CUIT, Nombre, Lote..." />
+            </div>
+
+          </div>
+
+          <div class="flex justify-between items-center pt-1 border-t border-gray-300">
+            <button onclick="limpiarFiltrosHistorial()" class="text-xs font-bold px-2 py-0.5">🧹 Limpiar Filtros</button>
+            <div class="flex gap-2">
+              <button onclick="document.getElementById('excelHistorialInput').click()" class="font-bold text-xs py-1 px-3 bg-blue-100 border border-blue-600 hover:bg-blue-200">
+                🟢 SUBIR EXCEL DIRECTO
+              </button>
+              <input type="file" id="excelHistorialInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="previsualizarExcelEnMemoria(event)" />
+              <button onclick="exportarHistorialExcel()" class="font-bold text-xs py-1 px-3">📋 COPIAR FILTRADOS</button>
+              
+              <!-- BOTONES DE BORRADO -->
+              <button onclick="eliminarPagosFiltrados()" class="font-bold text-red-800 bg-red-100 border border-red-600 text-xs py-1 px-2 hover:bg-red-200" title="Borrar únicamente los pagos visibles actualmente">
+                🗑️ Borrar Filtrados
+              </button>
+              <button onclick="vaciarHistorial()" class="font-bold text-red-700 text-xs py-1 px-2" title="Borrar Todo el Historial">
+                💥 Borrar Todo
+              </button>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- PANEL DE PREVISUALIZACIÓN EN MEMORIA (SOLO VISIBLE AL SELECCIONAR EXCEL) -->
+        <div id="panelPrevisualizacionExcel" class="hidden border-2 border-amber-500 bg-amber-50 p-2.5 space-y-2 rounded shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-300 pb-1.5">
+            <div>
+              <span class="font-bold text-xs text-amber-900 block">👀 PREVISUALIZACIÓN EN MEMORIA (NO GUARDADO EN DISCO AÚN)</span>
+              <span class="text-[10px] text-amber-800 font-mono">
+                Registros: <strong id="previewExcelCount" class="text-black">0</strong> | 
+                Monto Total: <strong id="previewExcelAmount" class="text-green-800">$0,00</strong>
+              </span>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="confirmarImportacionExcel()" class="font-bold text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white border border-green-800">
+                ✅ Confirmar e Importar al Historial
+              </button>
+              <button onclick="descartarPrevisualizacionExcel()" class="font-bold text-xs px-3 py-1 bg-red-600 hover:bg-red-700 text-white border border-red-800">
+                ❌ Descartar / Limpiar
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto bg-white border border-amber-300 max-h-48">
+            <table class="win-table font-mono">
+              <thead>
+                <tr class="bg-amber-100">
+                  <th>FECHA</th>
+                  <th>LOTE</th>
+                  <th>CUIT</th>
+                  <th>BENEFICIARIO</th>
+                  <th class="col-right">IMPORTE</th>
+                  <th>CBU</th>
+                  <th class="text-center">CTA</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyPreviewExcel"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-xs font-bold">
+            <span>Resultados Históricos (<span id="totalHistorialCount">0</span> registros)</span>
+            <span>Monto Filtrado: $<span id="totalHistorialAmount">0,00</span></span>
+          </div>
+          <div class="overflow-x-auto bg-white border border-gray-400 max-h-[500px]">
+            <table class="win-table font-mono">
+              <thead>
+                <tr>
+                  <th>FECHA</th>
+                  <th>LOTE</th>
+                  <th>CUIT</th>
+                  <th>BENEFICIARIO</th>
+                  <th class="col-right">IMPORTE</th>
+                  <th>CBU</th>
+                  <th class="text-center">ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyHistorial">
+                <tr><td colspan="8" class="text-center text-gray-500 py-4 text-[10px]">No hay registros en el historial todavía, bro.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // --- RESIZE DEL PANEL ---
+    const leftPanel = document.getElementById('leftPanel');
+    const resizer = document.getElementById('resizer');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      resizer.classList.add('resizing');
+      document.body.style.cursor = 'col-resize';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      if (newWidth >= 220 && newWidth <= 500) {
+        leftPanel.style.width = `${newWidth}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        resizer.classList.remove('resizing');
+        document.body.style.cursor = 'default';
+      }
+    });
+
+    // --- VARIABLES DE ESTADO ---
+    let datosGalicia = [];
+    let ultimosDatosProcesados = [];
+    let ultimoLoteIdConsolidado = null;
+    let loteGaliciaActualId = null;
+    let lotesConsolidados = [];
+    let historialPagos = [];
+    let contadorLotes = 1;
+    let contadorManuales = 1;
+    let contadorGalicia = 1;
+    let contenidoArchivoManual = "";
+    let fechaSeleccionada = new Date();
+
+    // Variable temporal en memoria para previsualizar datos de Excel sin tocar localStorage
+    let datosMemoriaExcel = [];
+
+    window.onload = function() {
+      cargarDatosLocalStorage();
+      const todayISO = fechaSeleccionada.toISOString().split('T')[0];
+      document.getElementById('datePicker').value = todayISO;
+      actualizarFormatoFechaHeader();
+      renderConsolidadoDiario();
+      renderHistorial();
+    };
+
+    function guardarDatosLocalStorage() {
+      const estadoApp = {
+        lotesConsolidados,
+        historialPagos,
+        contadorLotes,
+        contadorManuales,
+        contadorGalicia,
+        fechaSeleccionada: fechaSeleccionada.toISOString()
+      };
+      localStorage.setItem('megaPortalAnimalState', JSON.stringify(estadoApp));
+    }
+
+    function cargarDatosLocalStorage() {
+      const guardado = localStorage.getItem('megaPortalAnimalState');
+      if (guardado) {
+        try {
+          const parsed = JSON.parse(guardado);
+          lotesConsolidados = parsed.lotesConsolidados || [];
+          historialPagos = parsed.historialPagos || [];
+          contadorLotes = parsed.contadorLotes || 1;
+          contadorManuales = parsed.contadorManuales || 1;
+          contadorGalicia = parsed.contadorGalicia || 1;
+          if (parsed.fechaSeleccionada) {
+            fechaSeleccionada = new Date(parsed.fechaSeleccionada);
+          }
+        } catch(e) {
+          console.error("Error al cargar localstorage", e);
+        }
+      }
+    }
+
+    function cambiarDia(offset) {
+      fechaSeleccionada.setDate(fechaSeleccionada.getDate() + offset);
+      document.getElementById('datePicker').value = fechaSeleccionada.toISOString().split('T')[0];
+      actualizarFormatoFechaHeader();
+      renderConsolidadoDiario();
+      guardarDatosLocalStorage();
+    }
+
+    function actualizarFechaManual() {
+      const val = document.getElementById('datePicker').value;
+      if (val) {
+        const partes = val.split('-');
+        fechaSeleccionada = new Date(partes[0], partes[1] - 1, partes[2]);
+        actualizarFormatoFechaHeader();
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function obtenerFechaFormatted() {
+      const day = String(fechaSeleccionada.getDate()).padStart(2, '0');
+      const month = String(fechaSeleccionada.getMonth() + 1).padStart(2, '0');
+      const year = String(fechaSeleccionada.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    }
+
+    function actualizarFormatoFechaHeader() {
+      const formatted = obtenerFechaFormatted();
+      document.getElementById('formattedDateHeader').textContent = formatted;
+      document.getElementById('thFechaLote').textContent = formatted;
+    }
+
+    function cambiarSeccion(seccion) {
+      document.getElementById('sec-galicia').classList.add('hidden');
+      document.getElementById('sec-verificador').classList.add('hidden');
+      document.getElementById('sec-historial').classList.add('hidden');
+      
+      if (seccion === 'galicia') {
+        document.getElementById('sec-galicia').classList.remove('hidden');
+      } else if (seccion === 'historial') {
+        document.getElementById('sec-historial').classList.remove('hidden');
+        renderHistorial();
+      } else {
+        document.getElementById('sec-verificador').classList.remove('hidden');
+      }
+    }
+
+    function formatearMontoArgentina(valorStr) {
+      if (!valorStr) return "0,00";
+      let str = valorStr.toString().trim();
+      if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(str)) return str;
+
+      str = str.replace(/[^0-9\,\.]/g, '');
+      if (!str) return "0,00";
+
+      let numero = 0;
+      if (str.includes(',')) {
+        let partes = str.split(',');
+        let entero = partes[0].replace(/\./g, '');
+        let decimal = (partes[1] + "00").slice(0, 2);
+        numero = parseFloat(`${entero}.${decimal}`);
+      } else if (str.includes('.')) {
+        let partes = str.split('.');
+        if (partes[partes.length - 1].length === 2) {
+          let decimal = partes.pop();
+          let entero = partes.join('');
+          numero = parseFloat(`${entero}.${decimal}`);
+        } else {
+          numero = parseFloat(str.replace(/\./g, ''));
+        }
+      } else {
+        numero = parseFloat(str);
+      }
+
+      if (isNaN(numero)) return "0,00";
+
+      return numero.toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function parsearImporteANumero(impStr) {
+      if (!impStr) return 0;
+      let limpio = impStr.toString().replace(/\./g, '').replace(',', '.');
+      return parseFloat(limpio) || 0;
+    }
+
+    function cargarArchivoManual(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      document.getElementById('fileNameManualDisplay').textContent = `📄 ${file.name}`;
+      const reader = new FileReader();
+      reader.onload = e => { contenidoArchivoManual = e.target.result; };
+      reader.readAsText(file);
+    }
+
+    function resetearLotes() { document.getElementById('inputTextLotes').value = ''; }
+    function resetearManualTexto() { document.getElementById('inputTextManual').value = ''; }
+    function resetearManualFile() {
+      document.getElementById('fileInputManual').value = '';
+      document.getElementById('fileNameManualDisplay').textContent = 'Elegir .TXT / .CSV';
+      contenidoArchivoManual = "";
+    }
+    function resetearGalicia() {
+      document.getElementById('fileInputGalicia').value = '';
+      datosGalicia = [];
+      document.getElementById('containerGalicia').classList.add('hidden');
+      document.getElementById('btnCopiarGalicia').disabled = true;
+      if (loteGaliciaActualId) {
+        lotesConsolidados = lotesConsolidados.filter(l => l.id !== loteGaliciaActualId);
+        loteGaliciaActualId = null;
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function extraerPalabrasClave(texto) {
+      if (!texto) return [];
+      const limpio = texto.toUpperCase().replace(/[^\w\s]/g, ' ');
+      const palabras = limpio.split(/\s+/).filter(Boolean);
+      const ignoradas = new Set(['DE', 'DEL', 'LA', 'EL', 'LOS', 'LAS', 'Y', 'S', 'A', 'SA', 'SRL', 'ORG', 'DEC', 'INTER', 'CP', 'DEV', 'SOCIEDAD', 'RESPONSABILIDAD', 'LIMITADA']);
+      return palabras.filter(p => !ignoradas.has(p) && p.length > 1 && isNaN(p));
+    }
+
+    function evaluarCoincidenciaRigurosa(arr1, arr2) {
+      if (arr1.length === 0 || arr2.length === 0) return 'ROJO';
+      const set1 = new Set(arr1);
+      const set2 = new Set(arr2);
+      let coincidencias = 0;
+
+      set1.forEach(p => {
+        const coincide = Array.from(set2).some(p2 => p === p2 || (p.length >= 3 && p2.length >= 3 && (p.startsWith(p2) || p2.startsWith(p))));
+        if (coincide) coincidencias++;
+      });
+
+      const maxPalabras = Math.max(set1.size, set2.size);
+      const minPalabras = Math.min(set1.size, set2.size);
+
+      if (coincidencias === 0) return 'ROJO';
+      if ((coincidencias / maxPalabras) >= 0.50 || (coincidencias === minPalabras && minPalabras >= 1)) return 'VERDE';
+      return 'AMARILLO';
+    }
+
+    function extraerCuentaOriginante(textoBloque) {
+      const match = textoBloque.match(/(?:DEC|INTER|CP|ORG|DEV)\s+(\d+)/i);
+      return match ? match[1] : '';
+    }
+
+    function procesarLotes() {
+      const rawText = document.getElementById('inputTextLotes').value;
+      if (!rawText.trim()) return;
+
+      const numLoteAsignado = `LOTE ${contadorLotes}`;
+
+      ultimosDatosProcesados = [];
+      let verdeCount = 0, amarilloCount = 0, rojoCount = 0;
+      let numRegistro = 1;
+
+      const regexCuitCbu = /(\d{11})\s*-\s*(\d{22})/g;
+      let match;
+      const indicesMatches = [];
+
+      while ((match = regexCuitCbu.exec(rawText)) !== null) {
+        indicesMatches.push({ cuit: match[1], cbu: match[2], index: match.index });
+      }
+
+      for (let i = 0; i < indicesMatches.length; i++) {
+        const actual = indicesMatches[i];
+        const siguiente = indicesMatches[i + 1];
+        const finBloque = siguiente ? siguiente.index : rawText.length;
+        const textoBloque = rawText.substring(actual.index, finBloque);
+        const cuentaOriginante = extraerCuentaOriginante(textoBloque);
+
+        let nombreTitular = "", importe = "0,00";
+        const matchMontoTitular = textoBloque.match(/(\d{22})[\s\S]*?\r?\n\s*([A-Z0-9\s\.\,\'\-]+?)\t?\s+([\d\.\,]+)\s+\d{2}\/\d{2}\/\d{4}/i);
+
+        if (matchMontoTitular) {
+          nombreTitular = matchMontoTitular[2].trim();
+          importe = formatearMontoArgentina(matchMontoTitular[3].trim());
+        }
+
+        let nombreOrg = "";
+        const matchOrg = textoBloque.match(/(?:ORG|INTER|CP|DEC|DEV)\s+(?:\d+\s+)?([^\n\r\t]+)/i);
+
+        if (matchOrg) {
+          let rawOrg = matchOrg[1].split(/\s+(?:OP-X|B\.N\.A\.|Galicia|BBVA|Santander|Macro|Bco Pcia|Corrientes)/i)[0];
+          nombreOrg = rawOrg.trim();
+        }
+
+        if (!nombreOrg) nombreOrg = nombreTitular;
+
+        const kw1 = extraerPalabrasClave(nombreOrg);
+        const kw2 = extraerPalabrasClave(nombreTitular);
+        const estado = evaluarCoincidenciaRigurosa(kw1, kw2);
+
+        if (estado === 'VERDE') verdeCount++;
+        else if (estado === 'AMARILLO') amarilloCount++;
+        else rojoCount++;
+
+        ultimosDatosProcesados.push({
+          num: numRegistro++, codigo: "LOTE ORG", cuit: actual.cuit, cbu: actual.cbu,
+          n1: nombreOrg, n2: nombreTitular, importe, estado, cuenta: cuentaOriginante,
+          enviadoAHistorial: false
+        });
+      }
+
+      document.getElementById('btnCopiarUltimo').disabled = ultimosDatosProcesados.length === 0;
+      ultimoLoteIdConsolidado = agregarAlConsolidadoDiario(numLoteAsignado, ultimosDatosProcesados, false);
+      
+      document.getElementById('postLoteNameInput').value = numLoteAsignado;
+      renderResultados(ultimosDatosProcesados, verdeCount, amarilloCount, rojoCount, false);
+      contadorLotes++;
+      guardarDatosLocalStorage();
+    }
+
+    function parsearBloqueManual(rawText) {
+      const resultados = [];
+      let numRegistro = 1;
+      const regexCuitCbu = /(\d{11})\s*-\s*(\d{22})/g;
+      let match;
+      const indicesMatches = [];
+
+      while ((match = regexCuitCbu.exec(rawText)) !== null) {
+        indicesMatches.push({ cuit: match[1], cbu: match[2], index: match.index });
+      }
+
+      if (indicesMatches.length > 0) {
+        for (let i = 0; i < indicesMatches.length; i++) {
+          const actual = indicesMatches[i];
+          const siguiente = indicesMatches[i + 1];
+          const finBloque = siguiente ? siguiente.index : rawText.length;
+          const textoBloque = rawText.substring(actual.index, finBloque);
+          const cuentaOriginante = extraerCuentaOriginante(textoBloque);
+
+          let nombre = "", importe = "";
+          const matchMultilinea = textoBloque.match(/(\d{22})[\s\S]*?\r?\n\s*([A-Z0-9\s\.\,\'\-]+?)\t?\s+([\d\.\,]+)\s+\d{2}\/\d{2}\/\d{4}/i);
+
+          if (matchMultilinea) {
+            nombre = matchMultilinea[2].trim();
+            importe = formatearMontoArgentina(matchMultilinea[3].trim());
+          } else {
+            const matchUnaLinea = textoBloque.match(/(\d{22})\s*-\s*([A-Z0-9\s\.\,\'\-]+?)\s+\$\s*([\d\.\,]+)/i);
+            if (matchUnaLinea) {
+              nombre = matchUnaLinea[2].trim();
+              importe = formatearMontoArgentina(matchUnaLinea[3].trim());
+            }
+          }
+
+          if (!importe || importe === "0,00" || importe === "0") continue;
+          nombre = nombre.replace(/^B\.N\.A\..*?-\s*/i, '').trim();
+
+          resultados.push({
+            num: numRegistro++, codigo: "MANUAL", cuit: actual.cuit, cbu: actual.cbu,
+            n1: nombre, n2: nombre, importe, estado: 'VERDE', cuenta: cuentaOriginante,
+            enviadoAHistorial: false
+          });
+        }
+      }
+      return resultados;
+    }
+
+    function procesarManualTexto() {
+      const rawText = document.getElementById('inputTextManual').value;
+      if (!rawText.trim()) return;
+
+      const numLoteAsignado = `MANUAL ${contadorManuales++}`;
+
+      ultimosDatosProcesados = parsearBloqueManual(rawText);
+      document.getElementById('btnCopiarUltimo').disabled = ultimosDatosProcesados.length === 0;
+      ultimoLoteIdConsolidado = agregarAlConsolidadoDiario(numLoteAsignado, ultimosDatosProcesados, true);
+      
+      document.getElementById('postLoteNameInput').value = numLoteAsignado;
+      renderResultados(ultimosDatosProcesados, ultimosDatosProcesados.length, 0, 0, true);
+      guardarDatosLocalStorage();
+    }
+
+    function procesarManualArchivo() {
+      if (!contenidoArchivoManual.trim()) return alert("Adjuntá un archivo .TXT válido ameo.");
+
+      const numLoteAsignado = `ARCHIVO ${contadorManuales++}`;
+
+      ultimosDatosProcesados = parsearBloqueManual(contenidoArchivoManual);
+      document.getElementById('btnCopiarUltimo').disabled = ultimosDatosProcesados.length === 0;
+      ultimoLoteIdConsolidado = agregarAlConsolidadoDiario(numLoteAsignado, ultimosDatosProcesados, true);
+      
+      document.getElementById('postLoteNameInput').value = numLoteAsignado;
+      renderResultados(ultimosDatosProcesados, ultimosDatosProcesados.length, 0, 0, true);
+      guardarDatosLocalStorage();
+    }
+
+    function actualizarNombreLoteActual(nuevoNombre) {
+      if (!ultimoLoteIdConsolidado) return;
+      const lote = lotesConsolidados.find(l => l.id === ultimoLoteIdConsolidado);
+      if (lote) {
+        lote.nombre = nuevoNombre.trim() !== "" ? nuevoNombre.trim() : "SIN NOMBRE";
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function actualizarCuentaManualAudit(idx, nuevaCuenta) {
+      if (ultimosDatosProcesados[idx]) {
+        ultimosDatosProcesados[idx].cuenta = nuevaCuenta.trim();
+      }
+      const lote = lotesConsolidados.find(l => l.id === ultimoLoteIdConsolidado);
+      if (lote && lote.registros[idx]) {
+        lote.registros[idx].cuenta = nuevaCuenta.trim();
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function renderResultados(resultados, verdeCount, amarilloCount, rojoCount, esManual) {
+      const container = document.getElementById('resultsContainer');
+      const tableAudit = document.getElementById('resultsTable');
+      const summary = document.getElementById('summaryCards');
+
+      container.classList.remove('hidden');
+
+      summary.innerHTML = `
+        <div class="border p-1 bg-white">Total: ${resultados.length}</div>
+        <div class="border p-1 bg-green-100 text-green-900">🟢 OK: ${verdeCount}</div>
+        <div class="border p-1 bg-yellow-100 text-yellow-900">🟡 Revisar: ${amarilloCount}</div>
+        <div class="border p-1 bg-red-100 text-red-900">🔴 Error: ${rojoCount}</div>
+      `;
+
+      tableAudit.innerHTML = resultados.map((r, idx) => {
+        let badge = r.estado === 'VERDE' ? '🟢 OK' : (r.estado === 'AMARILLO' ? '🟡 REVISAR' : '🔴 ERROR');
+        
+        let celdaCuenta = esManual 
+          ? `<input type="text" value="${r.cuenta || ''}" onchange="actualizarCuentaManualAudit(${idx}, this.value)" class="w-16 border text-center font-bold text-[10px] bg-white focus:bg-yellow-100" placeholder="Cuenta" />`
+          : (r.cuenta || 'S/D');
+
+        return `
+          <tr>
+            <td>${r.num}</td>
+            <td class="font-bold">${r.codigo}</td>
+            <td>${r.cuit}<br/><span class="text-[10px] text-gray-500">${r.cbu}</span></td>
+            <td>${r.n1}<br/><span class="text-[10px] text-gray-500">Banco: ${r.n2}</span></td>
+            <td class="col-right font-bold text-green-700">$${r.importe}</td>
+            <td class="text-center font-bold bg-gray-50">${celdaCuenta}</td>
+            <td class="text-center">${badge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // --- CONSOLIDADO DIARIO ---
+    function agregarAlConsolidadoDiario(nombreLote, nuevosDatos, esManual, customId = null) {
+      if (nuevosDatos.length === 0) return null;
+      
+      const nuevoId = customId !== null ? customId : (Date.now() + Math.random());
+      
+      const procesadosConEstado = nuevosDatos.map(reg => ({
+        ...reg,
+        enviadoAHistorial: reg.enviadoAHistorial || false
+      }));
+
+      const indexExistente = lotesConsolidados.findIndex(l => l.id === nuevoId);
+      if (indexExistente !== -1) {
+        lotesConsolidados[indexExistente].nombre = nombreLote;
+        lotesConsolidados[indexExistente].registros = JSON.parse(JSON.stringify(procesadosConEstado));
+      } else {
+        lotesConsolidados.push({
+          id: nuevoId,
+          nombre: nombreLote,
+          esManual: esManual,
+          visible: false,
+          registros: JSON.parse(JSON.stringify(procesadosConEstado))
+        });
+      }
+      
+      renderConsolidadoDiario();
+      guardarDatosLocalStorage();
+      return nuevoId;
+    }
+
+    function toggleVisibilidadLote(indexLote) {
+      lotesConsolidados[indexLote].visible = !lotesConsolidados[indexLote].visible;
+      renderConsolidadoDiario();
+    }
+
+    function eliminarLoteCompleto(indexLote) {
+      if (confirm(`¿Volás completo el ${lotesConsolidados[indexLote].nombre}, ameo?`)) {
+        lotesConsolidados.splice(indexLote, 1);
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function eliminarRegistroIndividual(indexLote, indexRegistro) {
+      lotesConsolidados[indexLote].registros.splice(indexRegistro, 1);
+      if (lotesConsolidados[indexLote].registros.length === 0) {
+        lotesConsolidados.splice(indexLote, 1);
+      }
+      renderConsolidadoDiario();
+      guardarDatosLocalStorage();
+    }
+
+    function renderConsolidadoDiario() {
+      const tbody = document.getElementById('dailyTableBody');
+      const totalLotesDisplay = document.getElementById('dailyLotesCount');
+      const countDisplay = document.getElementById('dailyTotalCount');
+      const amountDisplay = document.getElementById('dailyTotalAmount');
+      const btnCopiar = document.getElementById('btnCopiarDiario');
+      const btnGuardar = document.getElementById('btnGuardarHistorial');
+
+      if (lotesConsolidados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 py-4 text-[10px]">Sin nada por acá todavía, bro.</td></tr>`;
+        totalLotesDisplay.textContent = '0';
+        countDisplay.textContent = '0';
+        amountDisplay.textContent = '0,00';
+        btnCopiar.disabled = true;
+        btnGuardar.disabled = true;
+        renderTotalesPorCuenta({});
+        return;
+      }
+
+      let htmlConsolidado = "";
+      let totalMontoLotes = 0;
+      let totalPagosLotes = 0;
+      let cantidadLotesMasivos = 0;
+      let totalesPorCuenta = {};
+
+      lotesConsolidados.forEach((lote, indexLote) => {
+        let subtotalLote = 0;
+        if (!lote.esManual) cantidadLotesMasivos++;
+
+        lote.registros.forEach((d) => {
+          const impNum = parsearImporteANumero(d.importe);
+          subtotalLote += impNum;
+
+          if (!lote.esManual) {
+            totalMontoLotes += impNum;
+            totalPagosLotes++;
+          }
+
+          let keyCuenta = d.cuenta ? d.cuenta.toString().trim() : 'S/D';
+          if (!keyCuenta) keyCuenta = 'S/D';
+          totalesPorCuenta[keyCuenta] = (totalesPorCuenta[keyCuenta] || 0) + impNum;
+        });
+
+        const iconToggle = lote.visible ? '−' : '+';
+
+        htmlConsolidado += `
+          <tr class="lote-header-row">
+            <td colspan="5" class="py-0.5 px-1">
+              <div class="flex items-center justify-between text-[10px] gap-1">
+                <div class="flex items-center gap-0.5 shrink-0">
+                  <button onclick="toggleVisibilidadLote(${indexLote})" class="btn-sq-micro" title="Expandir/Colapsar">${iconToggle}</button>
+                  <span class="text-white font-bold">${lote.nombre}</span>
+                </div>
+                <div class="flex items-center justify-end gap-1 flex-1 overflow-hidden">
+                  <span class="text-white font-bold shrink-0">(${lote.registros.length})</span>
+                  <span class="text-yellow-200 font-bold truncate">$${subtotalLote.toLocaleString('es-AR', {minimumFractionDigits:2})}</span>
+                  <button onclick="eliminarLoteCompleto(${indexLote})" class="btn-sq-micro btn-sq-danger shrink-0" title="Eliminar Lote">✕</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        if (lote.visible) {
+          lote.registros.forEach((d, indexRegistro) => {
+            let celdaLote = indexRegistro === 0 ? `<td class="font-bold text-blue-900 bg-gray-100 truncate max-w-[30px]">${lote.nombre}</td>` : `<td></td>`;
+
+            const estaCargado = d.enviadoAHistorial === true;
+            const rowClass = estaCargado ? 'row-cargado' : '';
+            const badgeEstado = estaCargado 
+              ? `<span class="font-bold text-green-700 bg-green-200 px-1 rounded text-[8px]" title="Cargado en historial">✔ CARGADO</span>`
+              : `<span class="font-bold text-red-700 bg-red-100 px-1 rounded text-[8px]" title="Pendiente de enviar">🔴 PENDIENTE</span>`;
+
+            htmlConsolidado += `
+              <tr class="text-[9px] ${rowClass}">
+                ${celdaLote}
+                <td class="truncate max-w-[60px]" title="${d.cuit} - ${d.n1}">${d.cuit}<br/><span class="text-gray-600 text-[8px]">${d.n1}</span></td>
+                <td class="col-right font-bold text-green-700">$${d.importe}</td>
+                <td class="text-center font-bold">${badgeEstado}</td>
+                <td class="text-center">
+                  <button onclick="eliminarRegistroIndividual(${indexLote}, ${indexRegistro})" class="btn-sq-micro" title="Borrar fila">🗑️</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+      });
+
+      tbody.innerHTML = htmlConsolidado;
+      totalLotesDisplay.textContent = cantidadLotesMasivos;
+      countDisplay.textContent = totalPagosLotes;
+      amountDisplay.textContent = totalMontoLotes.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      btnCopiar.disabled = false;
+      btnGuardar.disabled = false;
+
+      renderTotalesPorCuenta(totalesPorCuenta);
+    }
+
+    function renderTotalesPorCuenta(totalesMap) {
+      const container = document.getElementById('cuentasDesglose');
+      if (!container) return;
+      const cuentas = Object.keys(totalesMap);
+      if (cuentas.length === 0) {
+        container.innerHTML = `<p class="text-gray-500 italic text-[10px]">Sin datos rey</p>`;
+        return;
+      }
+      container.innerHTML = cuentas.map(cta => `
+        <div class="flex justify-between items-center border-b border-gray-200 pb-0.5 text-[9px]">
+          <span class="font-bold text-blue-900">${cta}:</span>
+          <span class="font-bold text-green-800">$${totalesMap[cta].toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+      `).join('');
+    }
+
+    function vaciarConsolidadoDiario() {
+      if (confirm("¿Reiniciar todo el acumulado del día, brother?")) {
+        lotesConsolidados = [];
+        contadorLotes = 1;
+        contadorManuales = 1;
+        contadorGalicia = 1;
+        loteGaliciaActualId = null;
+        document.getElementById('galiciaLoteNameInput').value = "GALICIA 1";
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function copiarConsolidadoDiario() {
+      if (lotesConsolidados.length === 0) return;
+      const fechaHeader = obtenerFechaFormatted();
+      let textoCopiar = `${fechaHeader}\tCUIT\tAPELLIDO\tIMPORTE\tCBU\tCTA\n`;
+      
+      lotesConsolidados.forEach(lote => {
+        let ultimaCuenta = null;
+
+        lote.registros.forEach((d, index) => {
+          let valLote = index === 0 ? lote.nombre : "";
+          let cuentaActual = d.cuenta ? d.cuenta.toString().trim() : "";
+          let cuentaCopiar = "";
+
+          if (index === 0 || cuentaActual !== ultimaCuenta) {
+            cuentaCopiar = cuentaActual;
+            ultimaCuenta = cuentaActual;
+          } else {
+            cuentaCopiar = "";
+          }
+
+          textoCopiar += `${valLote}\t${d.cuit}\t${d.n1}\t${d.importe}\t${d.cbu}\t${cuentaCopiar}\n`;
+        });
+      });
+
+      navigator.clipboard.writeText(textoCopiar).then(() => alert(`¡Consolidado copiado con fecha ${fechaHeader}, rey!`));
+    }
+
+    function copiarTablaUltima() {
+      if (ultimosDatosProcesados.length === 0) return;
+      let textoCopiar = "CUIT\tAPELLIDO\tIMPORTE\tCBU\tCTA\n";
+      ultimosDatosProcesados.forEach((d) => { 
+        textoCopiar += `${d.cuit}\t${d.n1}\t${d.importe}\t${d.cbu}\t${d.cuenta || ''}\n`; 
+      });
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Última carga copiada, una masa!"));
+    }
+
+    function guardarPendientesEnHistorial() {
+      if (lotesConsolidados.length === 0) return alert("No hay lotes en el consolidado para enviar al historial, ameo.");
+
+      let pendientesNuevos = 0;
+      lotesConsolidados.forEach(lote => {
+        lote.registros.forEach(d => {
+          if (!d.enviadoAHistorial) pendientesNuevos++;
+        });
+      });
+
+      if (pendientesNuevos === 0) {
+        return alert("¡Todos los pagos del consolidado ya fueron cargados previamente al historial, crack!");
+      }
+
+      if (!confirm(`¿Querés agregar los ${pendientesNuevos} pago(s) PENDIENTES al Historial General?`)) return;
+
+      const fechaHeader = obtenerFechaFormatted();
+      let agregadosCount = 0;
+
+      lotesConsolidados.forEach(lote => {
+        let ultimaCuenta = "";
+        lote.registros.forEach(d => {
+          let cuentaActual = d.cuenta ? d.cuenta.toString().trim() : "";
+          if (cuentaActual) ultimaCuenta = cuentaActual;
+
+          if (!d.enviadoAHistorial) {
+            historialPagos.push({
+              id: Date.now() + Math.random(),
+              fecha: fechaHeader,
+              lote: lote.nombre,
+              cuit: d.cuit || '',
+              beneficiario: d.n1 || '',
+              importe: d.importe || '0,00',
+              cbu: d.cbu || '',
+              cuenta: ultimaCuenta || 'S/D'
+            });
+
+            d.enviadoAHistorial = true;
+            agregadosCount++;
+          }
+        });
+      });
+
+      guardarDatosLocalStorage();
+      renderConsolidadoDiario();
+      renderHistorial();
+      alert(`¡Se agregaron ${agregadosCount} pago(s) colgado(s) al Historial General con éxito, máquina!`);
+    }
+
+    function resetearEstadosCargados() {
+      if (lotesConsolidados.length === 0) return;
+      if (confirm("¿Querés volver a marcar TODOS los pagos del día como PENDIENTES de envío?")) {
+        lotesConsolidados.forEach(lote => {
+          lote.registros.forEach(d => {
+            d.enviadoAHistorial = false;
+          });
+        });
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    // --- HELPER UNIVERSAL MEJORADO PARA DETECTAR Y FORMATAR FECHAS ---
+    function parsearFechaUniversal(val) {
+      if (!val) return null;
+      let str = val.toString().trim();
+      if (!str) return null;
+
+      // 1. Números de serie de fecha propia de Excel (ej: 45538 -> 19/08/26)
+      if (!isNaN(str) && Number(str) > 30000 && Number(str) < 60000) {
+        let excelDate = XLSX.SSF.parse_date_code(Number(str));
+        if (excelDate) {
+          let dd = String(excelDate.d).padStart(2, '0');
+          let mm = String(excelDate.m).padStart(2, '0');
+          let yy = String(excelDate.y).slice(-2);
+          return `${dd}/${mm}/${yy}`;
+        }
+      }
+
+      // 2. Textos de fecha estilo "19-ago", "19-ago-2026", "19/ago"
+      const mapaMeses = {
+        'ene': '01', 'feb': '02', 'mar': '03', 'abr': '04', 'may': '05', 'jun': '06',
+        'jul': '07', 'ago': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12'
+      };
+
+      let strLower = str.toLowerCase();
+      let matchTextoMes = strLower.match(/^(\d{1,2})[\/\-\s]([a-z]{3})(?:[\/\-\s](\d{2,4}))?$/);
+      if (matchTextoMes) {
+        let dia = matchTextoMes[1].padStart(2, '0');
+        let mesStr = matchTextoMes[2];
+        let anioStr = matchTextoMes[3] || new Date().getFullYear().toString();
+        let mesNum = mapaMeses[mesStr];
+
+        if (mesNum) {
+          let yy = anioStr.length === 4 ? anioStr.slice(-2) : anioStr;
+          return `${dia}/${mesNum}/${yy}`;
+        }
+      }
+
+      // 3. Formatos numéricos separados por / o -
+      if (str.includes('/') || str.includes('-')) {
+        let partes = str.split(/[\/\-]/);
+        if (partes.length >= 2) {
+          let p1 = partes[0].padStart(2, '0');
+          let p2 = partes[1].padStart(2, '0');
+          let p3 = partes[2] || new Date().getFullYear().toString();
+
+          if (p1.length === 4) { // YYYY-MM-DD
+            let yy = p1.slice(-2);
+            return `${p3.padStart(2, '0')}/${p2}/${yy}`;
+          }
+
+          if (!isNaN(p1) && !isNaN(p2)) {
+            let yy = p3.length === 4 ? p3.slice(-2) : p3;
+            return `${p1}/${p2}/${yy}`;
+          }
+        }
+      }
+
+      // 4. Objetos Date o parse directo
+      let dateObj = new Date(str);
+      if (!isNaN(dateObj.getTime()) && str.length > 5) {
+        let dd = String(dateObj.getDate()).padStart(2, '0');
+        let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        let yy = String(dateObj.getFullYear()).slice(-2);
+        return `${dd}/${mm}/${yy}`;
+      }
+
+      return null;
+    }
+
+    // --- LECTURA EN MEMORIA CON ARRASTRE DE FECHA HACIA ARRIBA ---
+    function previsualizarExcelEnMemoria(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array', cellDates: true, dateNF: 'yyyy-mm-dd' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+        if (rows.length === 0) {
+          alert("El archivo Excel está vacío.");
+          return;
+        }
+
+        // FECHA Y CUENTA DE ARRASTRE (Se mantendrán línea a línea hacia abajo hasta que aparezca una nueva)
+        let fechaActualArrastre = obtenerFechaFormatted();
+        let loteActual = "EXCEL IMPORTADO";
+        let cuentaActual = "S/D";
+        
+        datosMemoriaExcel = [];
+
+        rows.forEach((row) => {
+          if (!row || row.length === 0) return;
+
+          const col0 = row[0] ? row[0].toString().trim() : "";
+          const col1 = row[1] ? row[1].toString().trim() : "";
+          const col2 = row[2] ? row[2].toString().trim() : "";
+          const col3 = row[3] ? row[3].toString().trim() : "";
+          const col4 = row[4] ? row[4].toString().trim() : "";
+          const col5 = row[5] ? row[5].toString().trim() : "";
+
+          // Omitir encabezados estáticos
+          if (col1.toUpperCase() === "CUIT" || col2.toUpperCase() === "APELLIDO" || col2.toUpperCase() === "BENEFICIARIO") {
+            return;
+          }
+
+          // A) BUSCADOR DE FECHA EN LA COLUMNA A (Si existe una fecha en esta fila, actualiza el valor para todas las siguientes)
+          if (col0) {
+            let fechaDetectada = parsearFechaUniversal(col0);
+            if (fechaDetectada) {
+              fechaActualArrastre = fechaDetectada; // Queda guardada para este registro y para los de abajo (ej: Piasentini)
+            }
+          }
+
+          // B) ARRASTRE Y CAPTURA DE NÚMERO DE LOTE EN COLUMNA A
+          if (col0 && !isNaN(col0) && !col0.includes('/') && !col0.includes('-') && col0.length < 10) {
+            loteActual = col0;
+          }
+
+          // C) ARRASTRE Y CAPTURA DE CUENTA ORIGINANTE (Columna CTA)
+          if (col5 && col5.toUpperCase() !== "CTA") {
+            cuentaActual = col5;
+          }
+
+          // D) MAPEO DE CAMPOS DEL PAGO
+          let cuit = col1;
+          let beneficiario = col2;
+          let importeRaw = col3;
+          let cbu = col4;
+
+          // Corrección si hay símbolo de pesos desplazado
+          if (importeRaw === "$" || importeRaw === "") {
+            importeRaw = col4;
+            cbu = col5;
+          }
+
+          // Si la fila tiene un CUIT o Beneficiario, agregamos la transacción usando la FECHA DE ARRASTRE
+          if (cuit || beneficiario) {
+            datosMemoriaExcel.push({
+              id: Date.now() + Math.random(),
+              fecha: fechaActualArrastre, // Toma la primera fecha válida encontrada hacia arriba
+              lote: loteActual,
+              cuit: cuit.toString(),
+              beneficiario: beneficiario.toString(),
+              importe: formatearMontoArgentina(importeRaw.toString()),
+              cbu: cbu.toString(),
+              cuenta: cuentaActual.toString()
+            });
+          }
+        });
+
+        event.target.value = ""; // Limpiar input file
+
+        if (datosMemoriaExcel.length > 0) {
+          renderPanelPrevisualizacionExcel();
+        } else {
+          alert("No se detectaron registros válidos de pagos en el archivo Excel.");
+          descartarPrevisualizacionExcel();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderPanelPrevisualizacionExcel() {
+      const panel = document.getElementById('panelPrevisualizacionExcel');
+      const countLabel = document.getElementById('previewExcelCount');
+      const amountLabel = document.getElementById('previewExcelAmount');
+      const tbody = document.getElementById('tableBodyPreviewExcel');
+
+      let montoTotalTemp = 0;
+      datosMemoriaExcel.forEach(item => {
+        montoTotalTemp += parsearImporteANumero(item.importe);
+      });
+
+      countLabel.textContent = datosMemoriaExcel.length;
+      amountLabel.textContent = `$${montoTotalTemp.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      tbody.innerHTML = datosMemoriaExcel.map(item => `
+        <tr class="text-[10px]">
+          <td class="font-bold">${item.fecha}</td>
+          <td class="font-bold text-blue-900">${item.lote}</td>
+          <td>${item.cuit}</td>
+          <td>${item.beneficiario}</td>
+          <td class="col-right font-bold text-green-700">$${item.importe}</td>
+          <td class="text-[9px] text-gray-600">${item.cbu}</td>
+          <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
+        </tr>
+      `).join('');
+
+      panel.classList.remove('hidden');
+    }
+
+    function confirmarImportacionExcel() {
+      if (datosMemoriaExcel.length === 0) return;
+
+      const cantidadImportada = datosMemoriaExcel.length;
+      
+      // Pasar de memoria a la lista oficial
+      historialPagos = [...historialPagos, ...datosMemoriaExcel];
+
+      // Guardar en disco / localStorage
+      guardarDatosLocalStorage();
+
+      // Limpiar memoria temporal y UI
+      datosMemoriaExcel = [];
+      document.getElementById('panelPrevisualizacionExcel').classList.add('hidden');
+
+      renderHistorial();
+      alert(`¡Se confirmaron e importaron ${cantidadImportada} registros al Historial General con éxito!`);
+    }
+
+    function descartarPrevisualizacionExcel() {
+      datosMemoriaExcel = [];
+      document.getElementById('panelPrevisualizacionExcel').classList.add('hidden');
+      document.getElementById('tableBodyPreviewExcel').innerHTML = '';
+    }
+
+    // --- OBTENER REGISTROS FILTRADOS DEL HISTORIAL ---
+    function obtenerRegistrosFiltradosHistorial() {
+      const rawFechaPicker = document.getElementById('filtroHistorialFecha').value;
+      const fCuenta = document.getElementById('filtroHistorialCuenta').value.toUpperCase().trim();
+      const fGeneral = document.getElementById('filtroHistorialGeneral').value.toUpperCase().trim();
+
+      let fFechaFormateada = "";
+      if (rawFechaPicker) {
+        const partes = rawFechaPicker.split('-');
+        const yy = partes[0].slice(-2);
+        fFechaFormateada = `${partes[2]}/${partes[1]}/${yy}`;
+      }
+
+      return historialPagos.filter(item => {
+        const cumpleFecha = !fFechaFormateada || item.fecha === fFechaFormateada;
+        const cumpleCuenta = !fCuenta || item.cuenta.toUpperCase().includes(fCuenta);
+
+        let cumpleGeneral = true;
+        if (fGeneral) {
+          const cadenaCampos = `${item.lote} ${item.cuit} ${item.beneficiario} ${item.importe} ${item.cbu}`.toUpperCase();
+          cumpleGeneral = cadenaCampos.includes(fGeneral);
+        }
+
+        return cumpleFecha && cumpleCuenta && cumpleGeneral;
+      });
+    }
+
+    // --- RENDERIZADO DE HISTORIAL Y BÚSQUEDA ---
+    function renderHistorial() {
+      const tbody = document.getElementById('tableBodyHistorial');
+      const countDisplay = document.getElementById('totalHistorialCount');
+      const amountDisplay = document.getElementById('totalHistorialAmount');
+
+      if (historialPagos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-4 text-[10px]">No hay registros en el historial todavía, bro.</td></tr>`;
+        countDisplay.textContent = '0';
+        amountDisplay.textContent = '0,00';
+        return;
+      }
+
+      const filtrados = obtenerRegistrosFiltradosHistorial();
+
+      let montoTotalFiltrado = 0;
+      filtrados.forEach(item => {
+        montoTotalFiltrado += parsearImporteANumero(item.importe);
+      });
+
+      countDisplay.textContent = filtrados.length;
+      amountDisplay.textContent = montoTotalFiltrado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-4 text-[10px]">No se encontraron coincidencias para los filtros aplicados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map((item) => `
+        <tr class="text-[10px]">
+          <td class="font-bold">${item.fecha}</td>
+          <td class="font-bold text-blue-900">${item.lote}</td>
+          <td>${item.cuit}</td>
+          <td>${item.beneficiario}</td>
+          <td class="col-right font-bold text-green-700">$${item.importe}</td>
+          <td class="text-[9px] text-gray-600">${item.cbu}</td>
+          <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
+          <td class="text-center">
+            <button onclick="eliminarRegistroHistorial('${item.id}')" class="btn-sq-micro" title="Borrar registro histórico">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function limpiarFiltrosHistorial() {
+      document.getElementById('filtroHistorialFecha').value = "";
+      document.getElementById('filtroHistorialCuenta').value = "";
+      document.getElementById('filtroHistorialGeneral').value = "";
+      renderHistorial();
+    }
+
+    function eliminarRegistroHistorial(id) {
+      if (confirm("¿Estás seguro de borrar este registro del historial?")) {
+        historialPagos = historialPagos.filter(item => item.id !== parseFloat(id) && item.id !== id);
+        guardarDatosLocalStorage();
+        renderHistorial();
+      }
+    }
+
+    // --- BORRAR SOLAMENTE LOS PAGOS FILTRADOS ---
+    function eliminarPagosFiltrados() {
+      const filtrados = obtenerRegistrosFiltradosHistorial();
+      
+      if (filtrados.length === 0) {
+        return alert("No hay nada filtrado para borrar, máquina.");
+      }
+
+      if (confirm(`⚠️ ¿Querés eliminar ÚNICAMENTE los ${filtrados.length} registros que tenés filtrados en pantalla?`)) {
+        const idsAEliminar = new Set(filtrados.map(f => f.id));
+        historialPagos = historialPagos.filter(item => !idsAEliminar.has(item.id));
+        
+        guardarDatosLocalStorage();
+        renderHistorial();
+        alert(`¡Se eliminaron ${filtrados.length} registros filtrados del historial con éxito!`);
+      }
+    }
+
+    function vaciarHistorial() {
+      if (confirm("⚠️ ¡ADVERTENCIA! ¿Querés borrar TODO el historial de pagos guardado? Esta acción no se puede deshacer.")) {
+        historialPagos = [];
+        guardarDatosLocalStorage();
+        renderHistorial();
+      }
+    }
+
+    function exportarHistorialExcel() {
+      const filtrados = obtenerRegistrosFiltradosHistorial();
+
+      if (filtrados.length === 0) return alert("No hay datos filtrados para copiar.");
+
+      let textoCopiar = "FECHA\tLOTE\tCUIT\tBENEFICIARIO\tIMPORTE\tCBU\tCTA\n";
+      filtrados.forEach(item => {
+        textoCopiar += `${item.fecha}\t${item.lote}\t${item.cuit}\t${item.beneficiario}\t${item.importe}\t${item.cbu}\t${item.cuenta}\n`;
+      });
+
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Historial filtrado copiado al portapapeles con éxito, crack!"));
+    }
+
+    // --- BANCO GALICIA ---
+    const dropZone = document.getElementById('dropZoneGalicia');
+    const fileInputGalicia = document.getElementById('fileInputGalicia');
+
+    fileInputGalicia.addEventListener('change', (e) => e.target.files[0] && leerYProcesarGalicia(e.target.files[0]));
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, (ev) => ev.preventDefault()));
+    dropZone.addEventListener('drop', (e) => e.dataTransfer.files[0] && leerYProcesarGalicia(e.dataTransfer.files[0]));
+
+    function leerYProcesarGalicia(file) {
+      const reader = new FileReader();
+      reader.onload = e => procesarGalicia(e.target.result);
+      reader.readAsText(file);
+    }
+
+    function actualizarNombreLoteGalicia(nuevoNombre) {
+      if (!loteGaliciaActualId) return;
+      const lote = lotesConsolidados.find(l => l.id === loteGaliciaActualId);
+      if (lote) {
+        lote.nombre = nuevoNombre.trim() !== "" ? nuevoNombre.trim() : "GALICIA";
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function procesarGalicia(rawText) {
+      const lineas = rawText.split('\n');
+      const registros = [];
+
+      lineas.forEach(linea => {
+        if (!linea.trim() || linea.startsWith('*P3AAG') || linea.startsWith('*FAAG') || linea.length < 71) return;
+
+        let apellido = linea.substring(0, 16).trim();
+        let cuit = linea.substring(16, 27).trim();
+        let cbu = linea.substring(49, 71).trim();
+
+        let montoMatch = linea.match(/322(\d{14})PAGO/);
+        let monto = 0;
+        if (montoMatch) {
+          monto = parseFloat(montoMatch[1]) / 100;
+        }
+
+        if (cuit || apellido || cbu || monto > 0) {
+          let importeFormatted = monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          registros.push({
+            cuit: cuit,
+            apellido: apellido,
+            importe: importeFormatted,
+            cbu: cbu,
+            editandoMonto: false,
+            editandoCbu: false
+          });
+        }
+      });
+
+      datosGalicia = registros;
+
+      document.getElementById('btnCopiarGalicia').disabled = datosGalicia.length === 0;
+      
+      const nombreLoteInput = document.getElementById('galiciaLoteNameInput').value.trim();
+      const nombreLote = nombreLoteInput !== "" ? nombreLoteInput : `GALICIA ${contadorGalicia}`;
+      loteGaliciaActualId = `GALICIA_LOTE_${Date.now()}`;
+      contadorGalicia++;
+
+      const datosFormateados = datosGalicia.map(d => ({
+        cuit: d.cuit, n1: d.apellido, n2: d.apellido,
+        importe: d.importe, cbu: d.cbu, cuenta: "288", estado: 'VERDE',
+        enviadoAHistorial: false
+      }));
+
+      agregarAlConsolidadoDiario(nombreLote, datosFormateados, false, loteGaliciaActualId);
+      renderGalicia(datosGalicia, loteGaliciaActualId);
+      guardarDatosLocalStorage();
+    }
+
+    function toggleEditGalicia(index, campo, loteGaliciaId) {
+      if (campo === 'importe') datosGalicia[index].editandoMonto = !datosGalicia[index].editandoMonto;
+      else if (campo === 'cbu') datosGalicia[index].editandoCbu = !datosGalicia[index].editandoCbu;
+      renderGalicia(datosGalicia, loteGaliciaId);
+    }
+
+    function manejarKeydownGalicia(event, index, campo, valor, loteGaliciaId) {
+      if (event.key === 'Enter') guardarEdicionGalicia(index, campo, valor, loteGaliciaId);
+    }
+
+    function guardarEdicionGalicia(index, campo, valor, loteGaliciaId) {
+      let nuevoValor = valor.trim();
+      if (campo === 'importe') {
+        nuevoValor = formatearMontoArgentina(nuevoValor);
+        datosGalicia[index].importe = nuevoValor;
+        datosGalicia[index].editandoMonto = false;
+      } else if (campo === 'cbu') {
+        datosGalicia[index].cbu = nuevoValor;
+        datosGalicia[index].editandoCbu = false;
+      }
+
+      sincronizarGaliciaConConsolidado(index, campo, nuevoValor, loteGaliciaId);
+      renderGalicia(datosGalicia, loteGaliciaId);
+    }
+
+    function sincronizarGaliciaConConsolidado(index, campo, nuevoValor, loteGaliciaId) {
+      const lote = lotesConsolidados.find(l => l.id === loteGaliciaId);
+      if (lote && lote.registros[index]) {
+        if (campo === 'importe') lote.registros[index].importe = nuevoValor;
+        else if (campo === 'cbu') lote.registros[index].cbu = nuevoValor;
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+    }
+
+    function renderGalicia(lista, loteGaliciaId) {
+      const container = document.getElementById('containerGalicia');
+      const tableBody = document.getElementById('tableBodyGalicia');
+      document.getElementById('totalGaliciaCount').textContent = lista.length;
+      container.classList.remove('hidden');
+
+      tableBody.innerHTML = lista.map((r, idx) => {
+        const celdaMonto = r.editandoMonto ? `
+          <input type="text" 
+                 value="${r.importe}" 
+                 onkeydown="manejarKeydownGalicia(event, ${idx}, 'importe', this.value, '${loteGaliciaId}')" 
+                 onblur="guardarEdicionGalicia(${idx}, 'importe', this.value, '${loteGaliciaId}')" 
+                 class="w-24 text-right border border-blue-500 p-0.5 font-mono text-[10px] font-bold text-green-700 bg-yellow-100" 
+                 autofocus />
+        ` : `
+          <span class="font-bold text-green-700">$${r.importe}</span>
+          <button onclick="toggleEditGalicia(${idx}, 'importe', '${loteGaliciaId}')" class="btn-sq-micro" title="Editar Importe">✏️</button>
+        `;
+
+        const celdaCbu = r.editandoCbu ? `
+          <input type="text" 
+                 value="${r.cbu}" 
+                 onkeydown="manejarKeydownGalicia(event, ${idx}, 'cbu', this.value, '${loteGaliciaId}')" 
+                 onblur="guardarEdicionGalicia(${idx}, 'cbu', this.value, '${loteGaliciaId}')" 
+                 class="w-44 border border-blue-500 p-0.5 font-mono text-[10px] bg-yellow-100" 
+                 autofocus />
+        ` : `
+          <span>${r.cbu}</span>
+          <button onclick="toggleEditGalicia(${idx}, 'cbu', '${loteGaliciaId}')" class="btn-sq-micro" title="Editar CBU">✏️</button>
+        `;
+
+        return `
+          <tr>
+            <td>${r.cuit}</td>
+            <td>${r.apellido}</td>
+            <td class="col-right">${celdaMonto}</td>
+            <td>${celdaCbu}</td>
+            <td class="text-center">
+              <button onclick="eliminarRegistroGalicia(${idx}, '${loteGaliciaId}')" class="btn-sq-micro" title="Borrar fila">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function eliminarRegistroGalicia(index, loteGaliciaId) {
+      datosGalicia.splice(index, 1);
+      const lote = lotesConsolidados.find(l => l.id === loteGaliciaId);
+      if (lote) {
+        lote.registros.splice(index, 1);
+        if (lote.registros.length === 0) {
+          lotesConsolidados.splice(lotesConsolidados.indexOf(lote), 1);
+          loteGaliciaActualId = null;
+        }
+        renderConsolidadoDiario();
+        guardarDatosLocalStorage();
+      }
+
+      document.getElementById('btnCopiarGalicia').disabled = datosGalicia.length === 0;
+      renderGalicia(datosGalicia, loteGaliciaId);
+    }
+
+    function copiarTablaGalicia() {
+      if (datosGalicia.length === 0) return;
+      let textoCopiar = "";
+      datosGalicia.forEach((d) => {
+        textoCopiar += `${d.cuit}\t${d.apellido}\t${d.importe}\t${d.cbu}\t288\n`; 
+      });
+
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Tabla Galicia copiada con CTA 288, máquina!"));
+    }
+  </script>
+</body>
+</html>
