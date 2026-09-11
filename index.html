@@ -52,6 +52,11 @@
       font-weight: bold;
     }
 
+    /* ESTILO PARA NOTAR EL CAMBIO DE FECHA EN EL HISTORIAL */
+    .border-nueva-fecha {
+      border-top: 3px solid #000080 !important;
+    }
+
     .col-right {
       text-align: right !important;
     }
@@ -345,11 +350,16 @@
         <fieldset class="bg-gray-100 p-2 border border-gray-400 space-y-2">
           <legend class="font-bold text-xs text-blue-900">🔍 FILTROS AVANZADOS EN TIEMPO REAL</legend>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
             
             <div class="space-y-0.5">
-              <label class="font-bold text-[11px] block">📅 Selección de Fecha:</label>
-              <input type="date" id="filtroHistorialFecha" onchange="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full cursor-pointer" />
+              <label class="font-bold text-[11px] block">📅 Fecha Desde:</label>
+              <input type="date" id="filtroHistorialFechaDesde" onchange="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full cursor-pointer" />
+            </div>
+
+            <div class="space-y-0.5">
+              <label class="font-bold text-[11px] block">📅 Fecha Hasta:</label>
+              <input type="date" id="filtroHistorialFechaHasta" onchange="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full cursor-pointer" />
             </div>
 
             <div class="space-y-0.5">
@@ -364,13 +374,23 @@
 
           </div>
 
-          <div class="flex justify-between items-center pt-1 border-t border-gray-300">
+          <div class="flex flex-wrap justify-between items-center gap-2 pt-1 border-t border-gray-300">
             <button onclick="limpiarFiltrosHistorial()" class="text-xs font-bold px-2 py-0.5">🧹 Limpiar Filtros</button>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               <button onclick="document.getElementById('excelHistorialInput').click()" class="font-bold text-xs py-1 px-3 bg-blue-100 border border-blue-600 hover:bg-blue-200">
                 🟢 SUBIR EXCEL DIRECTO
               </button>
               <input type="file" id="excelHistorialInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="previsualizarExcelEnMemoria(event)" />
+              
+              <!-- BOTONES RESPALDO JSON -->
+              <button onclick="exportarRespaldoJSON()" class="font-bold text-xs py-1 px-3 bg-purple-100 border border-purple-600 hover:bg-purple-200">
+                💾 EXPORTAR RESPALDO (.JSON)
+              </button>
+              <button onclick="document.getElementById('jsonRespaldoInput').click()" class="font-bold text-xs py-1 px-3 bg-indigo-100 border border-indigo-600 hover:bg-indigo-200">
+                📂 IMPORTAR RESPALDO (.JSON)
+              </button>
+              <input type="file" id="jsonRespaldoInput" accept=".json" class="hidden" onchange="importarRespaldoJSON(event)" />
+
               <button onclick="exportarHistorialExcel()" class="font-bold text-xs py-1 px-3">📋 COPIAR FILTRADOS</button>
               
               <!-- BOTONES DE BORRADO -->
@@ -1160,6 +1180,72 @@
       }
     }
 
+    // --- FUNCIONES DE RESPALDO JSON (EXPORTACIÓN / IMPORTACIÓN ENTRE SERVIDORES) ---
+    function exportarRespaldoJSON() {
+      if (historialPagos.length === 0 && lotesConsolidados.length === 0) {
+        return alert("No hay datos cargados para exportar respaldo, bro.");
+      }
+
+      const estadoApp = {
+        historialPagos,
+        lotesConsolidados,
+        contadorLotes,
+        contadorManuales,
+        contadorGalicia,
+        fechaExportacion: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(estadoApp, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `respaldo_pagos_${obtenerFechaFormatted().replace(/\//g, '-')}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importarRespaldoJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const datosImportados = JSON.parse(e.target.result);
+          
+          if (!datosImportados.historialPagos) {
+            alert("El archivo no tiene un formato de respaldo válido.");
+            return;
+          }
+
+          if (confirm(`Se encontraron ${datosImportados.historialPagos.length} registros en el archivo. ¿Deseás fusionarlos con tu historial actual?`)) {
+            // Unir evitando duplicados exactos según ID
+            const idsExistentes = new Set(historialPagos.map(h => h.id));
+            const nuevos = datosImportados.historialPagos.filter(h => !idsExistentes.has(h.id));
+
+            historialPagos = [...historialPagos, ...nuevos];
+            
+            // Si el archivo trae lotes consolidados opcionales
+            if (datosImportados.lotesConsolidados && datosImportados.lotesConsolidados.length > 0) {
+              const idsLotesExistentes = new Set(lotesConsolidados.map(l => l.id));
+              const nuevosLotes = datosImportados.lotesConsolidados.filter(l => !idsLotesExistentes.has(l.id));
+              lotesConsolidados = [...lotesConsolidados, ...nuevosLotes];
+            }
+
+            guardarDatosLocalStorage();
+            renderConsolidadoDiario();
+            renderHistorial();
+            alert(`¡Se importaron ${nuevos.length} pagos nuevos al historial con éxito!`);
+          }
+        } catch (err) {
+          alert("Error al procesar el archivo JSON de respaldo.");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ""; // Limpiar input file
+    }
+
     // --- HELPER UNIVERSAL MEJORADO PARA DETECTAR Y FORMATAR FECHAS ---
     function parsearFechaUniversal(val) {
       if (!val) return null;
@@ -1274,7 +1360,7 @@
           if (col0) {
             let fechaDetectada = parsearFechaUniversal(col0);
             if (fechaDetectada) {
-              fechaActualArrastre = fechaDetectada; // Queda guardada para este registro y para los de abajo (ej: Piasentini)
+              fechaActualArrastre = fechaDetectada; // Queda guardada para este registro y para los de abajo
             }
           }
 
@@ -1304,7 +1390,7 @@
           if (cuit || beneficiario) {
             datosMemoriaExcel.push({
               id: Date.now() + Math.random(),
-              fecha: fechaActualArrastre, // Toma la primera fecha válida encontrada hacia arriba
+              fecha: fechaActualArrastre,
               lote: loteActual,
               cuit: cuit.toString(),
               beneficiario: beneficiario.toString(),
@@ -1381,21 +1467,31 @@
       document.getElementById('tableBodyPreviewExcel').innerHTML = '';
     }
 
-    // --- OBTENER REGISTROS FILTRADOS DEL HISTORIAL ---
+    // --- OBTENER REGISTROS FILTRADOS Y ORDENADOS POR FECHA Y LOTE ---
     function obtenerRegistrosFiltradosHistorial() {
-      const rawFechaPicker = document.getElementById('filtroHistorialFecha').value;
+      const rawFechaDesde = document.getElementById('filtroHistorialFechaDesde').value;
+      const rawFechaHasta = document.getElementById('filtroHistorialFechaHasta').value;
       const fCuenta = document.getElementById('filtroHistorialCuenta').value.toUpperCase().trim();
       const fGeneral = document.getElementById('filtroHistorialGeneral').value.toUpperCase().trim();
 
-      let fFechaFormateada = "";
-      if (rawFechaPicker) {
-        const partes = rawFechaPicker.split('-');
-        const yy = partes[0].slice(-2);
-        fFechaFormateada = `${partes[2]}/${partes[1]}/${yy}`;
-      }
+      let objDesde = rawFechaDesde ? new Date(rawFechaDesde + 'T00:00:00') : null;
+      let objHasta = rawFechaHasta ? new Date(rawFechaHasta + 'T23:59:59') : null;
 
-      return historialPagos.filter(item => {
-        const cumpleFecha = !fFechaFormateada || item.fecha === fFechaFormateada;
+      // Filtrar
+      const filtrados = historialPagos.filter(item => {
+        const itemDateObj = convertirFechaAObj(item.fecha);
+
+        let cumpleDesde = true;
+        if (objDesde) {
+          cumpleDesde = itemDateObj >= objDesde;
+        }
+
+        let cumpleHasta = true;
+        if (objHasta) {
+          cumpleHasta = itemDateObj <= objHasta;
+        }
+
+        const cumpleFecha = cumpleDesde && cumpleHasta;
         const cumpleCuenta = !fCuenta || item.cuenta.toUpperCase().includes(fCuenta);
 
         let cumpleGeneral = true;
@@ -1406,6 +1502,42 @@
 
         return cumpleFecha && cumpleCuenta && cumpleGeneral;
       });
+
+      // ORDENAR: 1) Fecha descendente (lo más reciente arriba), 2) Lote alfabético/numérico, 3) ID descendente
+      filtrados.sort((a, b) => {
+        const dateA = convertirFechaAObj(a.fecha);
+        const dateB = convertirFechaAObj(b.fecha);
+
+        // Si las fechas son distintas, orden descendente (más nuevo arriba)
+        if (dateB - dateA !== 0) {
+          return dateB - dateA;
+        }
+
+        // Si la fecha es la misma, ordenamos por LOTE (alfabético o numérico)
+        const loteA = (a.lote || "").toString().toUpperCase();
+        const loteB = (b.lote || "").toString().toUpperCase();
+        const compLotes = loteA.localeCompare(loteB, undefined, { numeric: true, sensitivity: 'base' });
+        if (compLotes !== 0) {
+          return compLotes;
+        }
+
+        // Si pertenecen al mismo lote, ordenamos por ID descendente
+        return b.id - a.id;
+      });
+
+      return filtrados;
+    }
+
+    // Helper para transformar 'DD/MM/YY' en un objeto Date para comparar correctamente
+    function convertirFechaAObj(fechaStr) {
+      if (!fechaStr || !fechaStr.includes('/')) return new Date(0);
+      const partes = fechaStr.split('/');
+      if (partes.length < 3) return new Date(0);
+      let dia = parseInt(partes[0], 10);
+      let mes = parseInt(partes[1], 10) - 1;
+      let anio = parseInt(partes[2], 10);
+      if (anio < 100) anio += 2000; // Asumir años 2000+
+      return new Date(anio, mes, dia);
     }
 
     // --- RENDERIZADO DE HISTORIAL Y BÚSQUEDA ---
@@ -1436,24 +1568,39 @@
         return;
       }
 
-      tbody.innerHTML = filtrados.map((item) => `
-        <tr class="text-[10px]">
-          <td class="font-bold">${item.fecha}</td>
-          <td class="font-bold text-blue-900">${item.lote}</td>
-          <td>${item.cuit}</td>
-          <td>${item.beneficiario}</td>
-          <td class="col-right font-bold text-green-700">$${item.importe}</td>
-          <td class="text-[9px] text-gray-600">${item.cbu}</td>
-          <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
-          <td class="text-center">
-            <button onclick="eliminarRegistroHistorial('${item.id}')" class="btn-sq-micro" title="Borrar registro histórico">🗑️</button>
-          </td>
-        </tr>
-      `).join('');
+      let fechaAnterior = null;
+
+      tbody.innerHTML = filtrados.map((item) => {
+        // Detectar si arranca una fecha nueva respecto al elemento anterior para aplicar la línea divisoria
+        let esNuevaFecha = false;
+        if (fechaAnterior !== null && fechaAnterior !== item.fecha) {
+          esNuevaFecha = true;
+        }
+        fechaAnterior = item.fecha;
+
+        // Clase CSS condicional para la línea divisoria superior
+        const claseDivisoria = esNuevaFecha ? 'border-nueva-fecha' : '';
+
+        return `
+          <tr class="text-[10px] ${claseDivisoria}">
+            <td class="font-bold">${item.fecha}</td>
+            <td class="font-bold text-blue-900">${item.lote}</td>
+            <td>${item.cuit}</td>
+            <td>${item.beneficiario}</td>
+            <td class="col-right font-bold text-green-700">$${item.importe}</td>
+            <td class="text-[9px] text-gray-600">${item.cbu}</td>
+            <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
+            <td class="text-center">
+              <button onclick="eliminarRegistroHistorial('${item.id}')" class="btn-sq-micro" title="Borrar registro histórico">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function limpiarFiltrosHistorial() {
-      document.getElementById('filtroHistorialFecha').value = "";
+      document.getElementById('filtroHistorialFechaDesde').value = "";
+      document.getElementById('filtroHistorialFechaHasta').value = "";
       document.getElementById('filtroHistorialCuenta').value = "";
       document.getElementById('filtroHistorialGeneral').value = "";
       renderHistorial();
