@@ -108,6 +108,30 @@
     #resizer:hover, #resizer.resizing {
       background: #000080;
     }
+
+    .comparison-list {
+      list-style-type: none;
+      padding-left: 0;
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid #7f9db9;
+      background: #ffffff;
+    }
+    .comparison-list li {
+      padding: 2px 6px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 11px;
+      font-family: monospace;
+    }
+    .comparison-list li:last-child {
+      border-bottom: none;
+    }
+
+    .item-error {
+      background-color: #ffe6e6 !important;
+      color: #b30000 !important;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body class="min-h-screen flex p-2 gap-0 overflow-hidden">
@@ -306,6 +330,55 @@
       </div>
 
       <div class="window-body space-y-3">
+
+        <!-- SECCIÓN COMPARADOR POSICIONADA ARRIBA DE LA LISTA PRINCIPAL -->
+        <fieldset class="space-y-2 bg-gray-50 border-2 border-blue-800 p-2">
+          <legend class="font-bold text-xs text-blue-900 px-1">🔍 Comparar Proveedores con nuevo TXT (Galicia)</legend>
+          <p class="text-[11px] text-gray-700">Cargá un segundo archivo TXT de Galicia para verificar coincidencia de nombres con la lista actual.</p>
+          
+          <div class="flex items-center gap-2">
+            <input type="file" id="fileGaliciaCompare" accept=".txt" class="text-xs font-mono bg-white border border-gray-400 p-0.5 flex-1" />
+            <button class="font-bold py-1 px-3 text-xs bg-blue-100 hover:bg-blue-200 border border-blue-600 text-blue-900" onclick="compararListasGalicia()">🔍 Comparar Listas</button>
+          </div>
+
+          <div id="resultadoComparacion" class="hidden pt-2 border-t border-gray-300 space-y-2">
+            
+            <!-- CONTADOR GLOBAL ACTUALIZADO -->
+            <div id="resumenNumericoComparacion" class="p-2 border-2 border-gray-600 bg-white font-mono text-center font-bold text-sm shadow">
+              <span id="badgeResumenComp">0 OK | 0 ERROR</span>
+            </div>
+
+            <!-- LAS 3 COLUMNAS CON TÍTULOS SOLICITADOS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              
+              <div class="space-y-1">
+                <h4 class="font-bold text-[11px] text-green-800 flex items-center justify-between bg-green-100 p-1 border border-green-400">
+                  <span>Coincidentes (OK)</span>
+                  <span id="cntCoincidencias" class="bg-green-700 text-white px-1.5 py-0.5 rounded text-[10px]">0</span>
+                </h4>
+                <ul id="listaCoincidencias" class="comparison-list"></ul>
+              </div>
+
+              <div class="space-y-1">
+                <h4 class="font-bold text-[11px] text-red-800 flex items-center justify-between bg-red-100 p-1 border border-red-400">
+                  <span>No coincide</span>
+                  <span id="cntFaltantes" class="bg-red-700 text-white px-1.5 py-0.5 rounded text-[10px]">0</span>
+                </h4>
+                <ul id="listaFaltantes" class="comparison-list"></ul>
+              </div>
+
+              <div class="space-y-1">
+                <h4 class="font-bold text-[11px] text-blue-800 flex items-center justify-between bg-blue-100 p-1 border border-blue-400">
+                  <span>A quien se le pago</span>
+                  <span id="cntNuevos" class="bg-blue-700 text-white px-1.5 py-0.5 rounded text-[10px]">0</span>
+                </h4>
+                <ul id="listaNuevos" class="comparison-list"></ul>
+              </div>
+
+            </div>
+          </div>
+        </fieldset>
+
         <div class="flex items-center gap-2 bg-gray-100 p-2 border border-gray-400">
           <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO DE LOTE GALICIA:</span>
           <input type="text" id="galiciaLoteNameInput" value="GALICIA 1" class="font-mono text-xs font-bold border-2 border-blue-600 px-2 py-0.5 bg-white w-40" placeholder="Ej: GALICIA 1" oninput="actualizarNombreLoteGalicia(this.value)" />
@@ -335,6 +408,7 @@
             </table>
           </div>
         </div>
+
       </div>
     </section>
 
@@ -661,6 +735,8 @@
     }
     function resetearGalicia() {
       document.getElementById('fileInputGalicia').value = '';
+      document.getElementById('fileGaliciaCompare').value = '';
+      document.getElementById('resultadoComparacion').classList.add('hidden');
       datosGalicia = [];
       document.getElementById('containerGalicia').classList.add('hidden');
       document.getElementById('btnCopiarGalicia').disabled = true;
@@ -786,7 +862,7 @@
         for (let i = 0; i < indicesMatches.length; i++) {
           const actual = indicesMatches[i];
           const siguiente = indicesMatches[i + 1];
-          const finBloque = siguiente ? siguiente.index : rawText.length;
+          const finBloque = siguiente ? me : rawText.length;
           const textoBloque = rawText.substring(actual.index, finBloque);
           const cuentaOriginante = extraerCuentaOriginante(textoBloque);
 
@@ -1219,13 +1295,11 @@
           }
 
           if (confirm(`Se encontraron ${datosImportados.historialPagos.length} registros en el archivo. ¿Deseás fusionarlos con tu historial actual?`)) {
-            // Unir evitando duplicados exactos según ID
             const idsExistentes = new Set(historialPagos.map(h => h.id));
             const nuevos = datosImportados.historialPagos.filter(h => !idsExistentes.has(h.id));
 
             historialPagos = [...historialPagos, ...nuevos];
             
-            // Si el archivo trae lotes consolidados opcionales
             if (datosImportados.lotesConsolidados && datosImportados.lotesConsolidados.length > 0) {
               const idsLotesExistentes = new Set(lotesConsolidados.map(l => l.id));
               const nuevosLotes = datosImportados.lotesConsolidados.filter(l => !idsLotesExistentes.has(l.id));
@@ -1243,7 +1317,7 @@
         }
       };
       reader.readAsText(file);
-      event.target.value = ""; // Limpiar input file
+      event.target.value = "";
     }
 
     // --- HELPER UNIVERSAL MEJORADO PARA DETECTAR Y FORMATAR FECHAS ---
@@ -1252,7 +1326,6 @@
       let str = val.toString().trim();
       if (!str) return null;
 
-      // 1. Números de serie de fecha propia de Excel (ej: 45538 -> 19/08/26)
       if (!isNaN(str) && Number(str) > 30000 && Number(str) < 60000) {
         let excelDate = XLSX.SSF.parse_date_code(Number(str));
         if (excelDate) {
@@ -1263,7 +1336,6 @@
         }
       }
 
-      // 2. Textos de fecha estilo "19-ago", "19-ago-2026", "19/ago"
       const mapaMeses = {
         'ene': '01', 'feb': '02', 'mar': '03', 'abr': '04', 'may': '05', 'jun': '06',
         'jul': '07', 'ago': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12'
@@ -1283,7 +1355,6 @@
         }
       }
 
-      // 3. Formatos numéricos separados por / o -
       if (str.includes('/') || str.includes('-')) {
         let partes = str.split(/[\/\-]/);
         if (partes.length >= 2) {
@@ -1291,7 +1362,7 @@
           let p2 = partes[1].padStart(2, '0');
           let p3 = partes[2] || new Date().getFullYear().toString();
 
-          if (p1.length === 4) { // YYYY-MM-DD
+          if (p1.length === 4) {
             let yy = p1.slice(-2);
             return `${p3.padStart(2, '0')}/${p2}/${yy}`;
           }
@@ -1303,7 +1374,6 @@
         }
       }
 
-      // 4. Objetos Date o parse directo
       let dateObj = new Date(str);
       if (!isNaN(dateObj.getTime()) && str.length > 5) {
         let dd = String(dateObj.getDate()).padStart(2, '0');
@@ -1334,7 +1404,6 @@
           return;
         }
 
-        // FECHA Y CUENTA DE ARRASTRE (Se mantendrán línea a línea hacia abajo hasta que aparezca una nueva)
         let fechaActualArrastre = obtenerFechaFormatted();
         let loteActual = "EXCEL IMPORTADO";
         let cuentaActual = "S/D";
@@ -1351,42 +1420,35 @@
           const col4 = row[4] ? row[4].toString().trim() : "";
           const col5 = row[5] ? row[5].toString().trim() : "";
 
-          // Omitir encabezados estáticos
           if (col1.toUpperCase() === "CUIT" || col2.toUpperCase() === "APELLIDO" || col2.toUpperCase() === "BENEFICIARIO") {
             return;
           }
 
-          // A) BUSCADOR DE FECHA EN LA COLUMNA A (Si existe una fecha en esta fila, actualiza el valor para todas las siguientes)
           if (col0) {
             let fechaDetectada = parsearFechaUniversal(col0);
             if (fechaDetectada) {
-              fechaActualArrastre = fechaDetectada; // Queda guardada para este registro y para los de abajo
+              fechaActualArrastre = fechaDetectada;
             }
           }
 
-          // B) ARRASTRE Y CAPTURA DE NÚMERO DE LOTE EN COLUMNA A
           if (col0 && !isNaN(col0) && !col0.includes('/') && !col0.includes('-') && col0.length < 10) {
             loteActual = col0;
           }
 
-          // C) ARRASTRE Y CAPTURA DE CUENTA ORIGINANTE (Columna CTA)
           if (col5 && col5.toUpperCase() !== "CTA") {
             cuentaActual = col5;
           }
 
-          // D) MAPEO DE CAMPOS DEL PAGO
           let cuit = col1;
           let beneficiario = col2;
           let importeRaw = col3;
           let cbu = col4;
 
-          // Corrección si hay símbolo de pesos desplazado
           if (importeRaw === "$" || importeRaw === "") {
             importeRaw = col4;
             cbu = col5;
           }
 
-          // Si la fila tiene un CUIT o Beneficiario, agregamos la transacción usando la FECHA DE ARRASTRE
           if (cuit || beneficiario) {
             datosMemoriaExcel.push({
               id: Date.now() + Math.random(),
@@ -1401,7 +1463,7 @@
           }
         });
 
-        event.target.value = ""; // Limpiar input file
+        event.target.value = "";
 
         if (datosMemoriaExcel.length > 0) {
           renderPanelPrevisualizacionExcel();
@@ -1446,14 +1508,9 @@
       if (datosMemoriaExcel.length === 0) return;
 
       const cantidadImportada = datosMemoriaExcel.length;
-      
-      // Pasar de memoria a la lista oficial
       historialPagos = [...historialPagos, ...datosMemoriaExcel];
-
-      // Guardar en disco / localStorage
       guardarDatosLocalStorage();
 
-      // Limpiar memoria temporal y UI
       datosMemoriaExcel = [];
       document.getElementById('panelPrevisualizacionExcel').classList.add('hidden');
 
@@ -1467,7 +1524,6 @@
       document.getElementById('tableBodyPreviewExcel').innerHTML = '';
     }
 
-    // --- OBTENER REGISTROS FILTRADOS Y ORDENADOS POR FECHA Y LOTE ---
     function obtenerRegistrosFiltradosHistorial() {
       const rawFechaDesde = document.getElementById('filtroHistorialFechaDesde').value;
       const rawFechaHasta = document.getElementById('filtroHistorialFechaHasta').value;
@@ -1477,7 +1533,6 @@
       let objDesde = rawFechaDesde ? new Date(rawFechaDesde + 'T00:00:00') : null;
       let objHasta = rawFechaHasta ? new Date(rawFechaHasta + 'T23:59:59') : null;
 
-      // Filtrar
       const filtrados = historialPagos.filter(item => {
         const itemDateObj = convertirFechaAObj(item.fecha);
 
@@ -1503,17 +1558,14 @@
         return cumpleFecha && cumpleCuenta && cumpleGeneral;
       });
 
-      // ORDENAR: 1) Fecha descendente (lo más reciente arriba), 2) Lote alfabético/numérico, 3) ID descendente
       filtrados.sort((a, b) => {
         const dateA = convertirFechaAObj(a.fecha);
         const dateB = convertirFechaAObj(b.fecha);
 
-        // Si las fechas son distintas, orden descendente (más nuevo arriba)
         if (dateB - dateA !== 0) {
           return dateB - dateA;
         }
 
-        // Si la fecha es la misma, ordenamos por LOTE (alfabético o numérico)
         const loteA = (a.lote || "").toString().toUpperCase();
         const loteB = (b.lote || "").toString().toUpperCase();
         const compLotes = loteA.localeCompare(loteB, undefined, { numeric: true, sensitivity: 'base' });
@@ -1521,14 +1573,12 @@
           return compLotes;
         }
 
-        // Si pertenecen al mismo lote, ordenamos por ID descendente
         return b.id - a.id;
       });
 
       return filtrados;
     }
 
-    // Helper para transformar 'DD/MM/YY' en un objeto Date para comparar correctamente
     function convertirFechaAObj(fechaStr) {
       if (!fechaStr || !fechaStr.includes('/')) return new Date(0);
       const partes = fechaStr.split('/');
@@ -1536,11 +1586,10 @@
       let dia = parseInt(partes[0], 10);
       let mes = parseInt(partes[1], 10) - 1;
       let anio = parseInt(partes[2], 10);
-      if (anio < 100) anio += 2000; // Asumir años 2000+
+      if (anio < 100) anio += 2000;
       return new Date(anio, mes, dia);
     }
 
-    // --- RENDERIZADO DE HISTORIAL Y BÚSQUEDA ---
     function renderHistorial() {
       const tbody = document.getElementById('tableBodyHistorial');
       const countDisplay = document.getElementById('totalHistorialCount');
@@ -1571,14 +1620,12 @@
       let fechaAnterior = null;
 
       tbody.innerHTML = filtrados.map((item) => {
-        // Detectar si arranca una fecha nueva respecto al elemento anterior para aplicar la línea divisoria
         let esNuevaFecha = false;
         if (fechaAnterior !== null && fechaAnterior !== item.fecha) {
           esNuevaFecha = true;
         }
         fechaAnterior = item.fecha;
 
-        // Clase CSS condicional para la línea divisoria superior
         const claseDivisoria = esNuevaFecha ? 'border-nueva-fecha' : '';
 
         return `
@@ -1614,7 +1661,6 @@
       }
     }
 
-    // --- BORRAR SOLAMENTE LOS PAGOS FILTRADOS ---
     function eliminarPagosFiltrados() {
       const filtrados = obtenerRegistrosFiltradosHistorial();
       
@@ -1832,6 +1878,91 @@
       });
 
       navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Tabla Galicia copiada con CTA 288, máquina!"));
+    }
+
+    // --- FUNCION DE COMPARACION DE LISTAS GALICIA INTEGRADAS ---
+    function compararListasGalicia() {
+      if (datosGalicia.length === 0) {
+        alert('Primero debes procesar el archivo inicial de Galicia.');
+        return;
+      }
+
+      const fileInput = document.getElementById('fileGaliciaCompare');
+      if (!fileInput.files.length) {
+        alert('Seleccioná el archivo TXT que querés comparar.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const content = e.target.result;
+        const lineas = content.split('\n');
+        let listaNuevaNombres = [];
+
+        lineas.forEach(linea => {
+          if (!linea.trim() || linea.startsWith('*P3AAG') || linea.startsWith('*FAAG') || linea.length < 71) {
+            return;
+          }
+          let apellido = linea.substring(0, 16).trim();
+          if (apellido) {
+            listaNuevaNombres.push(apellido);
+          }
+        });
+
+        // Normalizar arreglos de nombres usando la lista del portal
+        const nombresOriginales = datosGalicia.map(p => p.apellido);
+
+        // Calcular diferencias
+        const coincidencias = nombresOriginales.filter(nombre => listaNuevaNombres.includes(nombre));
+        const faltantes = nombresOriginales.filter(nombre => !listaNuevaNombres.includes(nombre));
+        const nuevos = listaNuevaNombres.filter(nombre => !nombresOriginales.includes(nombre));
+
+        // ACTUALIZAR RESUMEN EN NÚMEROS (35 OK | 1 ERROR)
+        const okCount = coincidencias.length;
+        const errorCount = faltantes.length;
+
+        const badgeResumen = document.getElementById('badgeResumenComp');
+        badgeResumen.textContent = `${okCount} OK | ${errorCount} ERROR`;
+
+        // Renderizar contadores individuales
+        document.getElementById('cntCoincidencias').textContent = okCount;
+        document.getElementById('cntFaltantes').textContent = errorCount;
+        document.getElementById('cntNuevos').textContent = nuevos.length;
+
+        // Renderizar listas y resaltar errores
+        renderListaComparacion('listaCoincidencias', coincidencias, '#28a745', false);
+        renderListaComparacion('listaFaltantes', faltantes, '#dc3545', true); // Marca como error
+        renderListaComparacion('listaNuevos', nuevos, '#17a2b8', false);
+
+        document.getElementById('resultadoComparacion').classList.remove('hidden');
+      };
+
+      reader.readAsText(file);
+    }
+
+    function renderListaComparacion(elementId, items, color, esError) {
+      const ul = document.getElementById(elementId);
+      ul.innerHTML = '';
+      if (items.length === 0) {
+        ul.innerHTML = '<li style="color:#777; font-style:italic;">Ninguno</li>';
+        return;
+      }
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.style.color = color;
+        li.style.fontWeight = 'bold';
+        
+        if (esError) {
+          li.classList.add('item-error');
+          li.textContent = `❌ ${item} (ERROR: No hallado en nuevo TXT)`;
+        } else {
+          li.textContent = item;
+        }
+
+        ul.appendChild(li);
+      });
     }
   </script>
 </body>
