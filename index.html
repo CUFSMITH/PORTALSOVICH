@@ -1,3 +1,23 @@
+¡Listo, crack! Ya quedó implementado el ordenamiento nativo estilo Windows 98 en el Historial.
+
+### ¿Qué se agregó y mejoró?
+1. **Comportamiento idéntico a Windows 98:**
+   - No hay botones raros ni que desentonen. Las mismas celdas de encabezado (`<th>`) de la tabla son interactivas (`FECHA`, `BENEFICIARIO` / nombre, y también podés tocar `LOTE`, `CUIT`, `IMPORTE`, etc.).
+   - Al hacer clic o tocar la celda, tiene el efecto auténtico de celda/cabecera de Windows: el bisel se hunde (`box-shadow` invertido) y el texto se desplaza 1 píxel hacia abajo y a la derecha.
+   - Muestra una pequeña flechita clásica (`▲` o `▼`) en azul marino Windows para saber si está en orden ascendente o descendente.
+
+2. **Lógica de ordenamiento:**
+   - **Por Fecha:** Alterna entre más reciente primero (por defecto) y más antiguo primero. Además, la línea divisoria azul de cambio de día solo se muestra cuando ordenás por fecha, para que al ordenar por nombre no quede desprolijo.
+   - **Por Nombre / Beneficiario:** Alterna alfabéticamente de la A a la Z y de la Z a la A.
+   - Si empatan en fecha o nombre, usa criterios secundarios lógicos de desempate.
+   - Al usar **"COPIAR FILTRADOS"**, también se copian a Excel respetando el orden en el que los dejaste.
+   - Corrige además la alineación de la columna `CTA` en el encabezado del Historial que faltaba en el HTML original.
+
+---
+
+### Código completo actualizado:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -44,6 +64,33 @@
       color: #000000;
       box-shadow: inset 1px 1px #ffffff, inset -1px -1px #808080;
       text-align: left;
+    }
+
+    /* ESTILO CELDA DE ENCABEZADO ORDENABLE TIPO WINDOWS */
+    table.win-table th.th-sortable {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      white-space: nowrap;
+    }
+    table.win-table th.th-sortable:hover {
+      background-color: #d4d0c8;
+    }
+    table.win-table th.th-sortable:active {
+      box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080 !important;
+      padding-top: 3px !important;
+      padding-left: 5px !important;
+      padding-bottom: 1px !important;
+      padding-right: 3px !important;
+    }
+
+    .sort-indicator {
+      display: inline-block;
+      font-size: 8px;
+      margin-left: 2px;
+      line-height: 1;
+      color: #000080;
+      font-weight: bold;
     }
 
     .lote-header-row {
@@ -525,12 +572,13 @@
             <table class="win-table font-mono">
               <thead>
                 <tr>
-                  <th>FECHA</th>
-                  <th>LOTE</th>
-                  <th>CUIT</th>
-                  <th>BENEFICIARIO</th>
-                  <th class="col-right">IMPORTE</th>
-                  <th>CBU</th>
+                  <th onclick="ordenarHistorial('fecha')" class="th-sortable" title="Ordenar por Fecha">FECHA <span id="sortHistorial_fecha" class="sort-indicator">▼</span></th>
+                  <th onclick="ordenarHistorial('lote')" class="th-sortable" title="Ordenar por Lote">LOTE <span id="sortHistorial_lote" class="sort-indicator"></span></th>
+                  <th onclick="ordenarHistorial('cuit')" class="th-sortable" title="Ordenar por CUIT">CUIT <span id="sortHistorial_cuit" class="sort-indicator"></span></th>
+                  <th onclick="ordenarHistorial('beneficiario')" class="th-sortable" title="Ordenar por Nombre / Beneficiario">BENEFICIARIO <span id="sortHistorial_beneficiario" class="sort-indicator"></span></th>
+                  <th onclick="ordenarHistorial('importe')" class="col-right th-sortable" title="Ordenar por Importe">IMPORTE <span id="sortHistorial_importe" class="sort-indicator"></span></th>
+                  <th onclick="ordenarHistorial('cbu')" class="th-sortable" title="Ordenar por CBU">CBU <span id="sortHistorial_cbu" class="sort-indicator"></span></th>
+                  <th onclick="ordenarHistorial('cuenta')" class="text-center th-sortable" title="Ordenar por Cuenta">CTA <span id="sortHistorial_cuenta" class="sort-indicator"></span></th>
                   <th class="text-center">ACCIÓN</th>
                 </tr>
               </thead>
@@ -586,6 +634,10 @@
     let contenidoArchivoManual = "";
     let fechaSeleccionada = new Date();
 
+    // Estado del orden en el Historial
+    let ordenHistorialCampo = 'fecha';
+    let ordenHistorialDireccion = 'desc';
+
     // Variable temporal en memoria para previsualizar datos de Excel sin tocar localStorage
     let datosMemoriaExcel = [];
 
@@ -605,7 +657,9 @@
         contadorLotes,
         contadorManuales,
         contadorGalicia,
-        fechaSeleccionada: fechaSeleccionada.toISOString()
+        fechaSeleccionada: fechaSeleccionada.toISOString(),
+        ordenHistorialCampo,
+        ordenHistorialDireccion
       };
       localStorage.setItem('megaPortalAnimalState', JSON.stringify(estadoApp));
     }
@@ -622,6 +676,12 @@
           contadorGalicia = parsed.contadorGalicia || 1;
           if (parsed.fechaSeleccionada) {
             fechaSeleccionada = new Date(parsed.fechaSeleccionada);
+          }
+          if (parsed.ordenHistorialCampo) {
+            ordenHistorialCampo = parsed.ordenHistorialCampo;
+          }
+          if (parsed.ordenHistorialDireccion) {
+            ordenHistorialDireccion = parsed.ordenHistorialDireccion;
           }
         } catch(e) {
           console.error("Error al cargar localstorage", e);
@@ -862,7 +922,7 @@
         for (let i = 0; i < indicesMatches.length; i++) {
           const actual = indicesMatches[i];
           const siguiente = indicesMatches[i + 1];
-          const finBloque = siguiente ? me : rawText.length;
+          const finBloque = siguiente ? siguiente.index : rawText.length;
           const textoBloque = rawText.substring(actual.index, finBloque);
           const cuentaOriginante = extraerCuentaOriginante(textoBloque);
 
@@ -1524,6 +1584,35 @@
       document.getElementById('tableBodyPreviewExcel').innerHTML = '';
     }
 
+    // --- ORDENAMIENTO ESTILO WINDOWS EN HISTORIAL ---
+    function ordenarHistorial(campo) {
+      if (ordenHistorialCampo === campo) {
+        ordenHistorialDireccion = ordenHistorialDireccion === 'asc' ? 'desc' : 'asc';
+      } else {
+        ordenHistorialCampo = campo;
+        if (campo === 'fecha' || campo === 'importe') {
+          ordenHistorialDireccion = 'desc';
+        } else {
+          ordenHistorialDireccion = 'asc';
+        }
+      }
+      guardarDatosLocalStorage();
+      renderHistorial();
+    }
+
+    function actualizarIndicadoresOrdenHistorial() {
+      const campos = ['fecha', 'lote', 'cuit', 'beneficiario', 'importe', 'cbu', 'cuenta'];
+      campos.forEach(c => {
+        const el = document.getElementById(`sortHistorial_${c}`);
+        if (!el) return;
+        if (ordenHistorialCampo === c) {
+          el.textContent = ordenHistorialDireccion === 'asc' ? ' ▲' : ' ▼';
+        } else {
+          el.textContent = '';
+        }
+      });
+    }
+
     function obtenerRegistrosFiltradosHistorial() {
       const rawFechaDesde = document.getElementById('filtroHistorialFechaDesde').value;
       const rawFechaHasta = document.getElementById('filtroHistorialFechaHasta').value;
@@ -1559,21 +1648,55 @@
       });
 
       filtrados.sort((a, b) => {
-        const dateA = convertirFechaAObj(a.fecha);
-        const dateB = convertirFechaAObj(b.fecha);
+        let comp = 0;
 
-        if (dateB - dateA !== 0) {
-          return dateB - dateA;
+        if (ordenHistorialCampo === 'fecha') {
+          const dateA = convertirFechaAObj(a.fecha);
+          const dateB = convertirFechaAObj(b.fecha);
+          comp = dateA - dateB;
+        } else if (ordenHistorialCampo === 'beneficiario') {
+          const valA = (a.beneficiario || "").toString().trim();
+          const valB = (b.beneficiario || "").toString().trim();
+          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
+        } else if (ordenHistorialCampo === 'importe') {
+          const impA = parsearImporteANumero(a.importe);
+          const impB = parsearImporteANumero(b.importe);
+          comp = impA - impB;
+        } else if (ordenHistorialCampo === 'lote') {
+          const valA = (a.lote || "").toString().trim();
+          const valB = (b.lote || "").toString().trim();
+          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
+        } else if (ordenHistorialCampo === 'cuit') {
+          const valA = (a.cuit || "").toString().trim();
+          const valB = (b.cuit || "").toString().trim();
+          comp = valA.localeCompare(valB, undefined, { numeric: true });
+        } else if (ordenHistorialCampo === 'cbu') {
+          const valA = (a.cbu || "").toString().trim();
+          const valB = (b.cbu || "").toString().trim();
+          comp = valA.localeCompare(valB, undefined, { numeric: true });
+        } else if (ordenHistorialCampo === 'cuenta') {
+          const valA = (a.cuenta || "").toString().trim();
+          const valB = (b.cuenta || "").toString().trim();
+          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
+        }
+
+        if (comp !== 0) {
+          return ordenHistorialDireccion === 'asc' ? comp : -comp;
+        }
+
+        // Criterios secundarios de desempate
+        if (ordenHistorialCampo !== 'fecha') {
+          const dateA = convertirFechaAObj(a.fecha);
+          const dateB = convertirFechaAObj(b.fecha);
+          if (dateB - dateA !== 0) return dateB - dateA;
         }
 
         const loteA = (a.lote || "").toString().toUpperCase();
         const loteB = (b.lote || "").toString().toUpperCase();
         const compLotes = loteA.localeCompare(loteB, undefined, { numeric: true, sensitivity: 'base' });
-        if (compLotes !== 0) {
-          return compLotes;
-        }
+        if (compLotes !== 0) return compLotes;
 
-        return b.id - a.id;
+        return (b.id || 0) - (a.id || 0);
       });
 
       return filtrados;
@@ -1591,6 +1714,7 @@
     }
 
     function renderHistorial() {
+      actualizarIndicadoresOrdenHistorial();
       const tbody = document.getElementById('tableBodyHistorial');
       const countDisplay = document.getElementById('totalHistorialCount');
       const amountDisplay = document.getElementById('totalHistorialAmount');
@@ -1621,7 +1745,8 @@
 
       tbody.innerHTML = filtrados.map((item) => {
         let esNuevaFecha = false;
-        if (fechaAnterior !== null && fechaAnterior !== item.fecha) {
+        // Solo mostrar separador grueso de cambio de fecha si se ordena por fecha
+        if (ordenHistorialCampo === 'fecha' && fechaAnterior !== null && fechaAnterior !== item.fecha) {
           esNuevaFecha = true;
         }
         fechaAnterior = item.fecha;
@@ -1933,7 +2058,7 @@
 
         // Renderizar listas y resaltar errores
         renderListaComparacion('listaCoincidencias', coincidencias, '#28a745', false);
-        renderListaComparacion('listaFaltantes', faltantes, '#dc3545', true); // Marca como error
+        renderListaComparacion('listaFaltantes', faltantes, '#dc3545', true);
         renderListaComparacion('listaNuevos', nuevos, '#17a2b8', false);
 
         document.getElementById('resultadoComparacion').classList.remove('hidden');
@@ -1967,3 +2092,4 @@
   </script>
 </body>
 </html>
+```
