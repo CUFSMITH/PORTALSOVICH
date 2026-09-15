@@ -15,7 +15,19 @@
     body {
       background-color: #008080;
       font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    ::selection {
+      background-color: #000080;
+      color: #ffffff;
+    }
+
+    /* Mantener no-seleccionable solo controles que se tocan o arrastran */
+    .title-bar, .win-nav-btn, button, #resizer, table.win-table th {
       user-select: none;
+      -webkit-user-select: none;
     }
 
     .win-nav-btn {
