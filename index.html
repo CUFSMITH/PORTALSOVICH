@@ -281,6 +281,7 @@
 
   <main class="flex-1 overflow-y-auto space-y-3 h-[calc(100vh-1rem)] pl-2 pr-1 min-w-0">
 
+    <!-- SECCIÓN INTERBANKING -->
     <section id="sec-verificador" class="window space-y-3">
       <div class="title-bar">
         <div class="title-bar-text">⚡ Verificador Interbanking / Lector de Lotes Titánico</div>
@@ -362,6 +363,7 @@
       </div>
     </section>
 
+    <!-- SECCIÓN GALICIA CRACK -->
     <section id="sec-galicia" class="window space-y-3 hidden">
       <div class="title-bar">
         <div class="title-bar-text">🏦 Lotes Galicia Implacables</div>
@@ -370,7 +372,7 @@
 
       <div class="window-body space-y-3">
 
-        <!-- SECCIÓN COMPARADOR POSICIONADA ARRIBA DE LA LISTA PRINCIPAL -->
+        <!-- 1. COMPARADOR DE PROVEEDORES CON TXT -->
         <fieldset class="space-y-2 bg-gray-50 border-2 border-blue-800 p-2">
           <legend class="font-bold text-xs text-blue-900 px-1">🔍 Comparar Proveedores con nuevo TXT (Galicia)</legend>
           <p class="text-[11px] text-gray-700">Cargá un segundo archivo TXT de Galicia para verificar coincidencia de nombres con la lista actual.</p>
@@ -382,12 +384,10 @@
 
           <div id="resultadoComparacion" class="hidden pt-2 border-t border-gray-300 space-y-2">
             
-            <!-- CONTADOR GLOBAL ACTUALIZADO -->
             <div id="resumenNumericoComparacion" class="p-2 border-2 border-gray-600 bg-white font-mono text-center font-bold text-sm shadow">
               <span id="badgeResumenComp">0 OK | 0 ERROR</span>
             </div>
 
-            <!-- LAS 3 COLUMNAS CON TÍTULOS SOLICITADOS -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
               
               <div class="space-y-1">
@@ -418,40 +418,109 @@
           </div>
         </fieldset>
 
-        <div class="flex items-center gap-2 bg-gray-100 p-2 border border-gray-400">
-          <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO DE LOTE GALICIA:</span>
-          <input type="text" id="galiciaLoteNameInput" value="GALICIA 1" class="font-mono text-xs font-bold border-2 border-blue-600 px-2 py-0.5 bg-white w-40" placeholder="Ej: GALICIA 1" oninput="actualizarNombreLoteGalicia(this.value)" />
-        </div>
-
-        <div id="dropZoneGalicia" onclick="document.getElementById('fileInputGalicia').click()" class="border-2 border-dashed border-gray-400 bg-white p-6 text-center cursor-pointer space-y-1">
-          <div class="text-2xl">🚀</div>
-          <div class="font-bold text-xs uppercase">Soltá el TXT de Galicia acá, máquina</div>
-          <input type="file" id="fileInputGalicia" accept=".txt" class="hidden" />
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button id="btnCopiarGalicia" onclick="copiarTablaGalicia()" disabled class="flex-1 font-bold py-1 text-xs">📋 COPIAR TABLA GALICIA</button>
-          <button onclick="resetearGalicia()" title="Limpiar" class="text-xs">🧹</button>
-        </div>
-
-        <div id="containerGalicia" class="hidden space-y-2">
-          <h3 class="font-bold text-xs">⚡ Tabla Galicia Impecable (<span id="totalGaliciaCount">0</span> registros)</h3>
-          <div class="overflow-x-auto bg-white border border-gray-400 max-h-96">
-            <table class="win-table font-mono">
-              <thead>
-                <tr>
-                  <th>CUIT</th><th>APELLIDO</th><th class="col-right">IMPORTE</th><th>CBU</th><th class="text-center">ACCIONES</th>
-                </tr>
-              </thead>
-              <tbody id="tableBodyGalicia"></tbody>
-            </table>
+        <!-- 2. CARGA POR ARCHIVO TXT DE GALICIA -->
+        <div class="space-y-2 border-2 border-gray-400 p-2 bg-gray-50">
+          <div class="flex items-center gap-2 bg-gray-100 p-2 border border-gray-400">
+            <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO DE LOTE GALICIA:</span>
+            <input type="text" id="galiciaLoteNameInput" value="GALICIA 1" class="font-mono text-xs font-bold border-2 border-blue-600 px-2 py-0.5 bg-white w-40" placeholder="Ej: GALICIA 1" oninput="actualizarNombreLoteGalicia(this.value)" />
           </div>
+
+          <div id="dropZoneGalicia" onclick="document.getElementById('fileInputGalicia').click()" class="border-2 border-dashed border-gray-400 bg-white p-6 text-center cursor-pointer space-y-1">
+            <div class="text-2xl">🚀</div>
+            <div class="font-bold text-xs uppercase">Soltá el TXT de Galicia acá, máquina</div>
+            <input type="file" id="fileInputGalicia" accept=".txt" class="hidden" />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnCopiarGalicia" onclick="copiarTablaGalicia()" disabled class="flex-1 font-bold py-1 text-xs">📋 COPIAR TABLA GALICIA</button>
+            <button onclick="resetearGalicia()" title="Limpiar" class="text-xs">🧹</button>
+          </div>
+
+          <div id="containerGalicia" class="hidden space-y-2">
+            <h3 class="font-bold text-xs">⚡ Tabla Galicia Impecable (<span id="totalGaliciaCount">0</span> registros)</h3>
+            <div class="overflow-x-auto bg-white border border-gray-400 max-h-96">
+              <table class="win-table font-mono">
+                <thead>
+                  <tr>
+                    <th>CUIT</th><th>APELLIDO</th><th class="col-right">IMPORTE</th><th>CBU</th><th class="text-center">ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBodyGalicia"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PAGOS MANUALES GALICIA (ABAJO DE LA CARGA DE ARCHIVOS - FORMATO 50/50) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+          
+          <!-- LADO IZQUIERDO: FORMULARIO, LOTE Y SELECTOR DE CUENTA -->
+          <fieldset class="bg-amber-50 border-2 border-amber-600 p-2 space-y-2 flex flex-col justify-between">
+            <legend class="font-bold text-xs text-amber-900 px-1">💵 Pagos Manuales Galicia</legend>
+            <div class="space-y-1.5">
+              
+              <!-- NUEVO: CAMPO DE NRO DE LOTE MANUAL GALICIA -->
+              <div class="flex items-center justify-between gap-1">
+                <label class="text-[11px] font-bold text-gray-800 shrink-0">🏷️ N° de Lote:</label>
+                <input type="text" id="galiciaManualLoteNameInput" value="GALICIA MANUAL 1" class="font-mono text-xs font-bold border border-amber-700 bg-white px-1.5 py-0.5 w-44" placeholder="Ej: GALICIA MANUAL 1" />
+              </div>
+
+              <div class="flex items-center justify-between gap-1">
+                <label class="text-[11px] font-bold text-gray-800 shrink-0">🏦 Cuenta Originante:</label>
+                <select id="selectCuentaGaliciaManual" class="font-mono text-xs font-bold border-2 border-amber-700 bg-white px-1.5 py-0.5 w-44">
+                  <option value="133-3">133-3 (USD)</option>
+                  <option value="288">288 (Pesos)</option>
+                </select>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <span class="text-[11px] font-bold text-gray-700">Pegá aquí el texto:</span>
+                <button onclick="document.getElementById('inputGaliciaManual').value=''" class="text-xs">🧹</button>
+              </div>
+              <textarea id="inputGaliciaManual" rows="5" class="w-full font-mono text-xs p-1.5 bg-white border border-gray-400" placeholder="Cristian Vissani&#10;&#10;23-31778766-9&#10;&#10;0070281431004002269166&#10;&#10;Banco Galicia&#10;&#10;US$ 4.592,00"></textarea>
+            </div>
+            <button onclick="procesarGaliciaManualTexto()" class="w-full font-bold py-1.5 text-xs bg-amber-200 hover:bg-amber-300 border border-amber-600 text-amber-900 uppercase shadow-sm">
+              ⚡ PROCESAR Y AGREGAR PAGO MANUAL
+            </button>
+          </fieldset>
+
+          <!-- LADO DERECHO: AUDITORÍA INMEDIATA DE LO CARGADO -->
+          <fieldset class="bg-white border-2 border-blue-600 p-2 space-y-2 flex flex-col justify-between">
+            <legend class="font-bold text-xs text-blue-900 px-1">📋 Pagos Galicia Procesados Recién</legend>
+            
+            <div class="flex-1 overflow-x-auto overflow-y-auto max-h-48 border border-gray-400 bg-gray-50">
+              <table class="win-table font-mono text-[10px]">
+                <thead>
+                  <tr class="bg-blue-100">
+                    <th>LOTE</th>
+                    <th>CUIT</th>
+                    <th>NOMBRE</th>
+                    <th class="col-right">IMPORTE</th>
+                    <th class="text-center">CTA</th>
+                  </tr>
+                </thead>
+                <tbody id="galiciaManualPreviewBody">
+                  <tr>
+                    <td colspan="5" class="text-center text-gray-500 py-6 italic text-[10px]">Aún no procesaste pagos manuales en esta sesión.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex justify-between items-center pt-1 border-t border-gray-300">
+              <span class="font-bold text-[10px] text-gray-700">Cargados: <strong id="cntGaliciaManualProcesados" class="text-blue-900">0</strong></span>
+              <button id="btnCopiarGaliciaManual" onclick="copiarTablaGaliciaManual()" disabled class="font-bold text-xs px-2 py-0.5">
+                📋 COPIAR ESTOS PAGOS
+              </button>
+            </div>
+          </fieldset>
+
         </div>
 
       </div>
     </section>
 
-    <!-- HISTORIAL CON BUSCADOR, IMPORTADOR DE EXCEL Y PREVISUALIZACIÓN EN MEMORIA -->
+    <!-- SECCIÓN HISTORIAL GENERAL -->
     <section id="sec-historial" class="window space-y-3 hidden">
       <div class="title-bar">
         <div class="title-bar-text">📜 Historial General y Búsqueda de Pagos</div>
@@ -477,7 +546,7 @@
 
             <div class="space-y-0.5">
               <label class="font-bold text-[11px] block">🏦 Cuenta Originante:</label>
-              <input type="text" id="filtroHistorialCuenta" oninput="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full" placeholder="Ej: 5133 o 229" />
+              <input type="text" id="filtroHistorialCuenta" oninput="renderHistorial()" class="font-mono text-xs border border-gray-500 px-1.5 py-0.5 bg-white w-full" placeholder="Ej: 5133, 615 o 133" />
             </div>
 
             <div class="space-y-0.5">
@@ -495,7 +564,6 @@
               </button>
               <input type="file" id="excelHistorialInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="previsualizarExcelEnMemoria(event)" />
               
-              <!-- BOTONES RESPALDO JSON -->
               <button onclick="exportarRespaldoJSON()" class="font-bold text-xs py-1 px-3 bg-purple-100 border border-purple-600 hover:bg-purple-200">
                 💾 EXPORTAR RESPALDO (.JSON)
               </button>
@@ -506,7 +574,6 @@
 
               <button onclick="exportarHistorialExcel()" class="font-bold text-xs py-1 px-3">📋 COPIAR FILTRADOS</button>
               
-              <!-- BOTONES DE BORRADO -->
               <button onclick="eliminarPagosFiltrados()" class="font-bold text-red-800 bg-red-100 border border-red-600 text-xs py-1 px-2 hover:bg-red-200" title="Borrar únicamente los pagos visibles actualmente">
                 🗑️ Borrar Filtrados
               </button>
@@ -517,7 +584,7 @@
           </div>
         </fieldset>
 
-        <!-- PANEL DE PREVISUALIZACIÓN EN MEMORIA (SOLO VISIBLE AL SELECCIONAR EXCEL) -->
+        <!-- PREVISUALIZACIÓN EN MEMORIA DE EXCEL -->
         <div id="panelPrevisualizacionExcel" class="hidden border-2 border-amber-500 bg-amber-50 p-2.5 space-y-2 rounded shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-300 pb-1.5">
             <div>
@@ -616,6 +683,7 @@
     // --- VARIABLES DE ESTADO ---
     let datosGalicia = [];
     let ultimosDatosProcesados = [];
+    let ultimosGaliciaManualProcesados = [];
     let ultimoLoteIdConsolidado = null;
     let loteGaliciaActualId = null;
     let lotesConsolidados = [];
@@ -623,6 +691,7 @@
     let contadorLotes = 1;
     let contadorManuales = 1;
     let contadorGalicia = 1;
+    let contadorGaliciaManual = 1;
     let contenidoArchivoManual = "";
     let fechaSeleccionada = new Date();
 
@@ -649,6 +718,7 @@
         contadorLotes,
         contadorManuales,
         contadorGalicia,
+        contadorGaliciaManual,
         fechaSeleccionada: fechaSeleccionada.toISOString(),
         ordenHistorialCampo,
         ordenHistorialDireccion
@@ -666,6 +736,7 @@
           contadorLotes = parsed.contadorLotes || 1;
           contadorManuales = parsed.contadorManuales || 1;
           contadorGalicia = parsed.contadorGalicia || 1;
+          contadorGaliciaManual = parsed.contadorGaliciaManual || 1;
           if (parsed.fechaSeleccionada) {
             fechaSeleccionada = new Date(parsed.fechaSeleccionada);
           }
@@ -788,6 +859,7 @@
     function resetearGalicia() {
       document.getElementById('fileInputGalicia').value = '';
       document.getElementById('fileGaliciaCompare').value = '';
+      document.getElementById('inputGaliciaManual').value = '';
       document.getElementById('resultadoComparacion').classList.add('hidden');
       datosGalicia = [];
       document.getElementById('containerGalicia').classList.add('hidden');
@@ -855,7 +927,11 @@
         const siguiente = indicesMatches[i + 1];
         const finBloque = siguiente ? siguiente.index : rawText.length;
         const textoBloque = rawText.substring(actual.index, finBloque);
-        const cuentaOriginante = extraerCuentaOriginante(textoBloque);
+        let cuentaOriginante = extraerCuentaOriginante(textoBloque);
+
+        if (!cuentaOriginante && textoBloque.includes('615')) {
+          cuentaOriginante = '615';
+        }
 
         let nombreTitular = "", importe = "0,00";
         const matchMontoTitular = textoBloque.match(/(\d{22})[\s\S]*?\r?\n\s*([A-Z0-9\s\.\,\'\-]+?)\t?\s+([\d\.\,]+)\s+\d{2}\/\d{2}\/\d{4}/i);
@@ -916,7 +992,8 @@
           const siguiente = indicesMatches[i + 1];
           const finBloque = siguiente ? siguiente.index : rawText.length;
           const textoBloque = rawText.substring(actual.index, finBloque);
-          const cuentaOriginante = extraerCuentaOriginante(textoBloque);
+          let cuentaOriginante = extraerCuentaOriginante(textoBloque);
+          if (!cuentaOriginante && textoBloque.includes('615')) cuentaOriginante = '615';
 
           let nombre = "", importe = "";
           const matchMultilinea = textoBloque.match(/(\d{22})[\s\S]*?\r?\n\s*([A-Z0-9\s\.\,\'\-]+?)\t?\s+([\d\.\,]+)\s+\d{2}\/\d{2}\/\d{4}/i);
@@ -1032,14 +1109,15 @@
     }
 
     // --- CONSOLIDADO DIARIO ---
-    function agregarAlConsolidadoDiario(nombreLote, nuevosDatos, esManual, customId = null) {
+    function agregarAlConsolidadoDiario(nombreLote, nuevosDatos, esManual, customId = null, esGaliciaManual = false) {
       if (nuevosDatos.length === 0) return null;
       
       const nuevoId = customId !== null ? customId : (Date.now() + Math.random());
       
       const procesadosConEstado = nuevosDatos.map(reg => ({
         ...reg,
-        enviadoAHistorial: reg.enviadoAHistorial || false
+        enviadoAHistorial: reg.enviadoAHistorial || false,
+        esGaliciaManual: esGaliciaManual || reg.esGaliciaManual || false
       }));
 
       const indexExistente = lotesConsolidados.findIndex(l => l.id === nuevoId);
@@ -1116,7 +1194,8 @@
           const impNum = parsearImporteANumero(d.importe);
           subtotalLote += impNum;
 
-          if (!lote.esManual) {
+          // REGLA: NINGÚN pago manual de Galicia se suma al importe final ni cantidad de pagos del día
+          if (!lote.esManual && !d.esGaliciaManual) {
             totalMontoLotes += impNum;
             totalPagosLotes++;
           }
@@ -1156,11 +1235,13 @@
               ? `<span class="font-bold text-green-700 bg-green-200 px-1 rounded text-[8px]" title="Cargado en historial">✔ CARGADO</span>`
               : `<span class="font-bold text-red-700 bg-red-100 px-1 rounded text-[8px]" title="Pendiente de enviar">🔴 PENDIENTE</span>`;
 
+            let displayImporte = d.esGaliciaManualUSD ? `US$ ${d.importe}` : `$${d.importe}`;
+
             htmlConsolidado += `
               <tr class="text-[9px] ${rowClass}">
                 ${celdaLote}
                 <td class="truncate max-w-[60px]" title="${d.cuit} - ${d.n1}">${d.cuit}<br/><span class="text-gray-600 text-[8px]">${d.n1}</span></td>
-                <td class="col-right font-bold text-green-700">$${d.importe}</td>
+                <td class="col-right font-bold text-green-700">${displayImporte}</td>
                 <td class="text-center font-bold">${badgeEstado}</td>
                 <td class="text-center">
                   <button onclick="eliminarRegistroIndividual(${indexLote}, ${indexRegistro})" class="btn-sq-micro" title="Borrar fila">🗑️</button>
@@ -1203,8 +1284,10 @@
         contadorLotes = 1;
         contadorManuales = 1;
         contadorGalicia = 1;
+        contadorGaliciaManual = 1;
         loteGaliciaActualId = null;
         document.getElementById('galiciaLoteNameInput').value = "GALICIA 1";
+        document.getElementById('galiciaManualLoteNameInput').value = "GALICIA MANUAL 1";
         renderConsolidadoDiario();
         guardarDatosLocalStorage();
       }
@@ -1230,7 +1313,8 @@
             cuentaCopiar = "";
           }
 
-          textoCopiar += `${valLote}\t${d.cuit}\t${d.n1}\t${d.importe}\t${d.cbu}\t${cuentaCopiar}\n`;
+          let impExport = d.esGaliciaManualUSD ? `US$ ${d.importe}` : d.importe;
+          textoCopiar += `${valLote}\t${d.cuit}\t${d.n1}\t${impExport}\t${d.cbu}\t${cuentaCopiar}\n`;
         });
       });
 
@@ -1272,13 +1356,14 @@
           if (cuentaActual) ultimaCuenta = cuentaActual;
 
           if (!d.enviadoAHistorial) {
+            let impHistorial = d.esGaliciaManualUSD ? `US$ ${d.importe}` : d.importe;
             historialPagos.push({
               id: Date.now() + Math.random(),
               fecha: fechaHeader,
               lote: lote.nombre,
               cuit: d.cuit || '',
               beneficiario: d.n1 || '',
-              importe: d.importe || '0,00',
+              importe: impHistorial,
               cbu: d.cbu || '',
               cuenta: ultimaCuenta || 'S/D'
             });
@@ -1308,7 +1393,7 @@
       }
     }
 
-    // --- FUNCIONES DE RESPALDO JSON (EXPORTACIÓN / IMPORTACIÓN ENTRE SERVIDORES) ---
+    // --- FUNCIONES DE RESPALDO JSON ---
     function exportarRespaldoJSON() {
       if (historialPagos.length === 0 && lotesConsolidados.length === 0) {
         return alert("No hay datos cargados para exportar respaldo, bro.");
@@ -1320,6 +1405,7 @@
         contadorLotes,
         contadorManuales,
         contadorGalicia,
+        contadorGaliciaManual,
         fechaExportacion: new Date().toISOString()
       };
 
@@ -1372,7 +1458,7 @@
       event.target.value = "";
     }
 
-    // --- HELPER UNIVERSAL MEJORADO PARA DETECTAR Y FORMATAR FECHAS ---
+    // --- HELPER UNIVERSAL PARA DETECTAR Y FORMATEAR FECHAS ---
     function parsearFechaUniversal(val) {
       if (!val) return null;
       let str = val.toString().trim();
@@ -1437,7 +1523,7 @@
       return null;
     }
 
-    // --- LECTURA EN MEMORIA CON ARRASTRE DE FECHA HACIA ARRIBA ---
+    // --- IMPORTACIÓN EXCEL ---
     function previsualizarExcelEnMemoria(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1676,7 +1762,6 @@
           return ordenHistorialDireccion === 'asc' ? comp : -comp;
         }
 
-        // Criterios secundarios de desempate
         if (ordenHistorialCampo !== 'fecha') {
           const dateA = convertirFechaAObj(a.fecha);
           const dateB = convertirFechaAObj(b.fecha);
@@ -1737,13 +1822,13 @@
 
       tbody.innerHTML = filtrados.map((item) => {
         let esNuevaFecha = false;
-        // Solo mostrar separador grueso de cambio de fecha si se ordena por fecha
         if (ordenHistorialCampo === 'fecha' && fechaAnterior !== null && fechaAnterior !== item.fecha) {
           esNuevaFecha = true;
         }
         fechaAnterior = item.fecha;
 
         const claseDivisoria = esNuevaFecha ? 'border-nueva-fecha' : '';
+        let displayImporte = item.importe.toString().startsWith('US$') ? item.importe : `$${item.importe}`;
 
         return `
           <tr class="text-[10px] ${claseDivisoria}">
@@ -1751,7 +1836,7 @@
             <td class="font-bold text-blue-900">${item.lote}</td>
             <td>${item.cuit}</td>
             <td>${item.beneficiario}</td>
-            <td class="col-right font-bold text-green-700">$${item.importe}</td>
+            <td class="col-right font-bold text-green-700">${displayImporte}</td>
             <td class="text-[9px] text-gray-600">${item.cbu}</td>
             <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
             <td class="text-center">
@@ -1882,12 +1967,164 @@
       const datosFormateados = datosGalicia.map(d => ({
         cuit: d.cuit, n1: d.apellido, n2: d.apellido,
         importe: d.importe, cbu: d.cbu, cuenta: "288", estado: 'VERDE',
-        enviadoAHistorial: false
+        enviadoAHistorial: false, esGaliciaManual: false
       }));
 
-      agregarAlConsolidadoDiario(nombreLote, datosFormateados, false, loteGaliciaActualId);
+      agregarAlConsolidadoDiario(nombreLote, datosFormateados, false, loteGaliciaActualId, false);
       renderGalicia(datosGalicia, loteGaliciaActualId);
       guardarDatosLocalStorage();
+    }
+
+    // --- PROCESAR PAGOS MANUALES DE GALICIA (CON SELECCIÓN DE CUENTA Y LOTE MANUAL) ---
+    function procesarGaliciaManualTexto() {
+      const rawText = document.getElementById('inputGaliciaManual').value;
+      if (!rawText.trim()) return alert("Pegá el texto del pago manual de Galicia, ameo.");
+
+      const cuentaSeleccionada = document.getElementById('selectCuentaGaliciaManual').value;
+      const esCuentaUSD = (cuentaSeleccionada === '133-3');
+
+      // Nombre de lote ingresado por el usuario o asignado por defecto
+      const inputLoteNombre = document.getElementById('galiciaManualLoteNameInput').value.trim();
+      const nombreLoteManual = inputLoteNombre !== "" ? inputLoteNombre : `GALICIA MANUAL ${contadorGaliciaManual}`;
+
+      // Divide en bloques por cada bloque de pago
+      const bloquesTexto = rawText.split(/(?=US\$\s*[\d\.,]+|\$\s*[\d\.,]+)/i);
+      let nuevosRegistros = [];
+
+      const regexCuit = /\b(\d{2}-?\d{8}-?\d{1})\b/;
+      const regexCbu = /\b(\d{22})\b/;
+      const regexMonto = /(?:US\$|\$)\s*([\d\.,]+)/i;
+
+      let fragmentos = bloquesTexto.length > 1 ? bloquesTexto : [rawText];
+
+      fragmentos.forEach(bloque => {
+        if (!bloque.trim()) return;
+
+        let matchMonto = bloque.match(regexMonto);
+        let matchCuit = bloque.match(regexCuit);
+        let matchCbu = bloque.match(regexCbu);
+
+        let montoStr = matchMonto ? formatearMontoArgentina(matchMonto[1]) : "";
+        let cuitRaw = matchCuit ? matchCuit[1] : "";
+        let cuitLimpio = cuitRaw.replace(/[^0-9]/g, '');
+        let cbu = matchCbu ? matchCbu[1] : "";
+
+        let lineas = bloque.split('\n').map(l => l.trim()).filter(Boolean);
+        let nombre = "";
+
+        for (let l of lineas) {
+          if (l.match(regexCuit) || l.match(regexCbu) || l.match(regexMonto) || l.toLowerCase().includes("banco galicia")) {
+            continue;
+          }
+          if (l.length > 2) {
+            nombre = l;
+            break;
+          }
+        }
+
+        if (!nombre) nombre = "CRISTIAN VISSANI";
+
+        if (cuitLimpio && montoStr) {
+          nuevosRegistros.push({
+            cuit: cuitLimpio,
+            n1: nombre,
+            n2: nombre,
+            importe: montoStr,
+            cbu: cbu,
+            cuenta: cuentaSeleccionada,
+            estado: 'VERDE',
+            enviadoAHistorial: false,
+            esGaliciaManualUSD: esCuentaUSD,
+            esGaliciaManual: true,
+            loteManualAsignado: nombreLoteManual
+          });
+        }
+      });
+
+      if (nuevosRegistros.length === 0) {
+        let regexGlobalCuit = /\b(\d{2}-?\d{8}-?\d{1}|\d{11})\b/g;
+        let cuitsEncontrados = [...rawText.matchAll(regexGlobalCuit)];
+        let cbusEncontrados = [...rawText.matchAll(/\b\d{22}\b/g)];
+        let montosEncontrados = [...rawText.matchAll(/(?:US\$|\$)\s*([\d\.,]+)/gi)];
+
+        for (let i = 0; i < cuitsEncontrados.length; i++) {
+          let cuitRaw = cuitsEncontrados[i] ? cuitsEncontrados[i][1] : "00000000000";
+          let cuitLimpio = cuitRaw.replace(/[^0-9]/g, '');
+          let cbu = cbusEncontrados[i] ? cbusEncontrados[i][0] : "";
+          let monto = montosEncontrados[i] ? formatearMontoArgentina(montosEncontrados[i][1]) : "0,00";
+
+          nuevosRegistros.push({
+            cuit: cuitLimpio,
+            n1: "CRISTIAN VISSANI",
+            n2: "CRISTIAN VISSANI",
+            importe: monto,
+            cbu: cbu,
+            cuenta: cuentaSeleccionada,
+            estado: 'VERDE',
+            enviadoAHistorial: false,
+            esGaliciaManualUSD: esCuentaUSD,
+            esGaliciaManual: true,
+            loteManualAsignado: nombreLoteManual
+          });
+        }
+      }
+
+      if (nuevosRegistros.length === 0) {
+        return alert("No se pudo detectar el CUIT o los datos del pago. Revisá el texto.");
+      }
+
+      ultimosGaliciaManualProcesados = nuevosRegistros;
+
+      let loteExistente = lotesConsolidados.find(l => l.nombre === nombreLoteManual);
+      
+      if (loteExistente) {
+        loteExistente.registros.push(...nuevosRegistros);
+        renderConsolidadoDiario();
+      } else {
+        agregarAlConsolidadoDiario(nombreLoteManual, nuevosRegistros, true, null, true);
+      }
+
+      contadorGaliciaManual++;
+      document.getElementById('galiciaManualLoteNameInput').value = `GALICIA MANUAL ${contadorGaliciaManual}`;
+
+      renderAuditoriaGaliciaManual(nuevosRegistros, nombreLoteManual);
+
+      document.getElementById('inputGaliciaManual').value = "";
+      guardarDatosLocalStorage();
+    }
+
+    function renderAuditoriaGaliciaManual(registros, nombreLote) {
+      const tbody = document.getElementById('galiciaManualPreviewBody');
+      const countSpan = document.getElementById('cntGaliciaManualProcesados');
+      const btnCopiar = document.getElementById('btnCopiarGaliciaManual');
+
+      countSpan.textContent = registros.length;
+      btnCopiar.disabled = registros.length === 0;
+
+      tbody.innerHTML = registros.map(r => {
+        let displayMonto = r.esGaliciaManualUSD ? `US$ ${r.importe}` : `$${r.importe}`;
+        let badgeBg = r.cuenta === '133-3' ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900';
+
+        return `
+          <tr>
+            <td class="font-bold text-blue-900">${r.loteManualAsignado || nombreLote || ''}</td>
+            <td class="font-bold">${r.cuit}</td>
+            <td>${r.n1}</td>
+            <td class="col-right font-bold text-green-700">${displayMonto}</td>
+            <td class="text-center font-bold ${badgeBg}">${r.cuenta}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function copiarTablaGaliciaManual() {
+      if (ultimosGaliciaManualProcesados.length === 0) return;
+      let textoCopiar = "LOTE\tCUIT\tAPELLIDO\tIMPORTE\tCBU\tCTA\n";
+      ultimosGaliciaManualProcesados.forEach((d) => {
+        let impStr = d.esGaliciaManualUSD ? `US$ ${d.importe}` : d.importe;
+        textoCopiar += `${d.loteManualAsignado || ''}\t${d.cuit}\t${d.n1}\t${impStr}\t${d.cbu}\t${d.cuenta}\n`;
+      });
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Pagos manuales de Galicia copiados al portapapeles!"));
     }
 
     function toggleEditGalicia(index, campo, loteGaliciaId) {
@@ -1997,7 +2234,7 @@
       navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Tabla Galicia copiada con CTA 288, máquina!"));
     }
 
-    // --- FUNCION DE COMPARACION DE LISTAS GALICIA INTEGRADAS ---
+    // --- COMPARACIÓN DE LISTAS GALICIA ---
     function compararListasGalicia() {
       if (datosGalicia.length === 0) {
         alert('Primero debes procesar el archivo inicial de Galicia.');
@@ -2028,27 +2265,22 @@
           }
         });
 
-        // Normalizar arreglos de nombres usando la lista del portal
         const nombresOriginales = datosGalicia.map(p => p.apellido);
 
-        // Calcular diferencias
         const coincidencias = nombresOriginales.filter(nombre => listaNuevaNombres.includes(nombre));
         const faltantes = nombresOriginales.filter(nombre => !listaNuevaNombres.includes(nombre));
         const nuevos = listaNuevaNombres.filter(nombre => !nombresOriginales.includes(nombre));
 
-        // ACTUALIZAR RESUMEN EN NÚMEROS (35 OK | 1 ERROR)
         const okCount = coincidencias.length;
         const errorCount = faltantes.length;
 
         const badgeResumen = document.getElementById('badgeResumenComp');
         badgeResumen.textContent = `${okCount} OK | ${errorCount} ERROR`;
 
-        // Renderizar contadores individuales
         document.getElementById('cntCoincidencias').textContent = okCount;
         document.getElementById('cntFaltantes').textContent = errorCount;
         document.getElementById('cntNuevos').textContent = nuevos.length;
 
-        // Renderizar listas y resaltar errores
         renderListaComparacion('listaCoincidencias', coincidencias, '#28a745', false);
         renderListaComparacion('listaFaltantes', faltantes, '#dc3545', true);
         renderListaComparacion('listaNuevos', nuevos, '#17a2b8', false);
