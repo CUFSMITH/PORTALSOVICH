@@ -433,7 +433,7 @@
 
           <div class="flex items-center gap-2">
             <button id="btnCopiarGalicia" onclick="copiarTablaGalicia()" disabled class="flex-1 font-bold py-1 text-xs">📋 COPIAR TABLA GALICIA</button>
-            <button onclick="resetearGalicia()" title="Limpiar" class="text-xs">🧹</button>
+            <button onclick="resetearGalicia()" title="Limpiar pantalla Galicia" class="text-xs">🧹</button>
           </div>
 
           <div id="containerGalicia" class="hidden space-y-2">
@@ -459,7 +459,6 @@
             <legend class="font-bold text-xs text-amber-900 px-1">💵 Pagos Manuales Galicia</legend>
             <div class="space-y-1.5">
               
-              <!-- NUEVO: CAMPO DE NRO DE LOTE MANUAL GALICIA -->
               <div class="flex items-center justify-between gap-1">
                 <label class="text-[11px] font-bold text-gray-800 shrink-0">🏷️ N° de Lote:</label>
                 <input type="text" id="galiciaManualLoteNameInput" value="GALICIA MANUAL 1" class="font-mono text-xs font-bold border border-amber-700 bg-white px-1.5 py-0.5 w-44" placeholder="Ej: GALICIA MANUAL 1" />
@@ -864,12 +863,8 @@
       datosGalicia = [];
       document.getElementById('containerGalicia').classList.add('hidden');
       document.getElementById('btnCopiarGalicia').disabled = true;
-      if (loteGaliciaActualId) {
-        lotesConsolidados = lotesConsolidados.filter(l => l.id !== loteGaliciaActualId);
-        loteGaliciaActualId = null;
-        renderConsolidadoDiario();
-        guardarDatosLocalStorage();
-      }
+      loteGaliciaActualId = null;
+      guardarDatosLocalStorage();
     }
 
     function extraerPalabrasClave(texto) {
@@ -1975,7 +1970,7 @@
       guardarDatosLocalStorage();
     }
 
-    // --- PROCESAR PAGOS MANUALES DE GALICIA (CON SELECCIÓN DE CUENTA Y LOTE MANUAL) ---
+    // --- PROCESAR PAGOS MANUALES DE GALICIA (SELECCIÓN DE CUENTA Y LOTE MANUAL) ---
     function procesarGaliciaManualTexto() {
       const rawText = document.getElementById('inputGaliciaManual').value;
       if (!rawText.trim()) return alert("Pegá el texto del pago manual de Galicia, ameo.");
@@ -1983,11 +1978,9 @@
       const cuentaSeleccionada = document.getElementById('selectCuentaGaliciaManual').value;
       const esCuentaUSD = (cuentaSeleccionada === '133-3');
 
-      // Nombre de lote ingresado por el usuario o asignado por defecto
       const inputLoteNombre = document.getElementById('galiciaManualLoteNameInput').value.trim();
       const nombreLoteManual = inputLoteNombre !== "" ? inputLoteNombre : `GALICIA MANUAL ${contadorGaliciaManual}`;
 
-      // Divide en bloques por cada bloque de pago
       const bloquesTexto = rawText.split(/(?=US\$\s*[\d\.,]+|\$\s*[\d\.,]+)/i);
       let nuevosRegistros = [];
 
