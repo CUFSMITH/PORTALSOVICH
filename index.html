@@ -1825,16 +1825,26 @@
         const claseDivisoria = esNuevaFecha ? 'border-nueva-fecha' : '';
         let displayImporte = item.importe.toString().startsWith('US$') ? item.importe : `$${item.importe}`;
 
+        // Determinar si el pago salió por Galicia (288 o 133-3) o Interbanking (demás)
+        let ctaLimpia = (item.cuenta || "").toString().trim().toUpperCase();
+        let loteLimpio = (item.lote || "").toString().trim().toUpperCase();
+        let esGalicia = ctaLimpia === "288" || ctaLimpia.startsWith("133") || ctaLimpia.includes("GALICIA") || loteLimpio.includes("GALICIA");
+
+        // Colores pastel claros pero claramente visibles:
+        // Naranja pastel suave: #ffe6d0 | Violeta pastel suave: #eee2ff
+        const colorFondo = esGalicia ? '#ffe6d0' : '#eee2ff';
+        const inlineBg = `style="background-color: ${colorFondo} !important;"`;
+
         return `
-          <tr class="text-[10px] ${claseDivisoria}">
-            <td class="font-bold">${item.fecha}</td>
-            <td class="font-bold text-blue-900">${item.lote}</td>
-            <td>${item.cuit}</td>
-            <td>${item.beneficiario}</td>
-            <td class="col-right font-bold text-green-700">${displayImporte}</td>
-            <td class="text-[9px] text-gray-600">${item.cbu}</td>
-            <td class="text-center font-bold bg-gray-50">${item.cuenta}</td>
-            <td class="text-center">
+          <tr class="text-[10px] ${claseDivisoria}" ${inlineBg}>
+            <td class="font-bold" ${inlineBg}>${item.fecha}</td>
+            <td class="font-bold text-blue-900" ${inlineBg}>${item.lote}</td>
+            <td ${inlineBg}>${item.cuit}</td>
+            <td ${inlineBg}>${item.beneficiario}</td>
+            <td class="col-right font-bold text-green-700" ${inlineBg}>${displayImporte}</td>
+            <td class="text-[9px] text-gray-600" ${inlineBg}>${item.cbu}</td>
+            <td class="text-center font-bold" ${inlineBg}>${item.cuenta}</td>
+            <td class="text-center" ${inlineBg}>
               <button onclick="eliminarRegistroHistorial('${item.id}')" class="btn-sq-micro" title="Borrar registro histórico">🗑️</button>
             </td>
           </tr>
