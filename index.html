@@ -147,7 +147,7 @@
     }
     table.win-table th, table.win-table td {
       border: 1px solid #cbd4dc;
-      padding: 4px 6px;
+      padding: 3px 5px;
       font-size: 11px;
     }
     table.win-table th {
@@ -189,7 +189,7 @@
       border-top: 3px solid #36506c !important;
     }
 
-    /* FILAS EN HISTORIAL (NARANJA Y VIOLETA PASTEL CLARITOS) */
+    /* FILAS EN HISTORIAL */
     .row-galicia-historial td {
       background-color: #ffe6d0 !important;
     }
@@ -280,17 +280,22 @@
       font-weight: bold;
     }
 
-    /* BADGE Y TAGS CLÁSICOS */
-    .ios-badge {
-      border-radius: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4);
+    .input-edicion-lote {
+      width: 100%;
+      font-size: 9px;
+      padding: 1px 3px;
+      font-weight: bold;
+      border: 1px solid #2563eb;
+      background: #fef08a;
+      border-radius: 3px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
     }
   </style>
 </head>
-<body class="min-h-screen flex p-3 gap-0 overflow-hidden">
+<body class="min-h-screen flex p-2 gap-0 overflow-hidden">
 
   <!-- PANEL IZQUIERDO -->
-  <aside id="leftPanel" class="ios-window shrink-0 flex flex-col h-[calc(100vh-1.5rem)] sticky top-3" style="width: 290px; min-width: 230px; max-width: 500px;">
+  <aside id="leftPanel" class="ios-window shrink-0 flex flex-col h-[calc(100vh-1rem)] sticky top-2" style="width: 330px; min-width: 250px; max-width: 530px;">
     
     <div class="ios-title-bar">
       <div class="flex items-center gap-1.5 text-xs tracking-tight">
@@ -300,101 +305,91 @@
       <span class="text-[10px] text-gray-300 font-normal">iOS 6</span>
     </div>
 
-    <div class="flex-1 flex flex-col space-y-2 p-2.5 overflow-hidden bg-[#eef2f5]">
+    <div class="flex-1 flex flex-col p-2 space-y-1.5 overflow-hidden bg-[#eef2f5]">
       
-      <div class="space-y-2 shrink-0">
-        <div class="p-2 bg-gradient-to-b from-white to-[#f0f3f6] border border-[#a8b4be] rounded-lg shadow-sm flex items-center gap-2">
-          <span class="text-2xl drop-shadow">🔥</span>
-          <div class="leading-tight">
-            <span class="font-extrabold text-[10px] uppercase block text-blue-900 tracking-tight">
-              PORTAL CONSOLIDADO
-            </span>
-            <span class="font-black text-[12px] uppercase block text-red-600 tracking-wider">
-              ¡ANIMAL EDITION! 🚀
-            </span>
-          </div>
-        </div>
+      <!-- BOTONES DE NAVEGACIÓN EN LÍNEA -->
+      <nav class="grid grid-cols-3 gap-1 shrink-0">
+        <button id="nav-verificador" onclick="cambiarSeccion('verificador')" class="ios-btn text-[11px] py-1 px-1 text-center truncate font-bold" title="Interbanking">
+          🔍 Interb.
+        </button>
+        <button id="nav-galicia" onclick="cambiarSeccion('galicia')" class="ios-btn text-[11px] py-1 px-1 text-center truncate font-bold" title="Galicia">
+          🏦 Galicia
+        </button>
+        <button id="nav-historial" onclick="cambiarSeccion('historial')" class="ios-btn text-[11px] py-1 px-1 text-center truncate font-bold" title="Historial">
+          📜 Historial
+        </button>
+      </nav>
 
-        <nav class="space-y-1.5">
-          <button id="nav-verificador" onclick="cambiarSeccion('verificador')" class="ios-btn win-nav-btn text-xs py-1.5 px-2 w-full text-left flex items-center gap-2">
-            <span>🔍</span> <span>Interbanking Ameo</span>
-          </button>
-          <button id="nav-galicia" onclick="cambiarSeccion('galicia')" class="ios-btn win-nav-btn text-xs py-1.5 px-2 w-full text-left flex items-center gap-2">
-            <span>🏦</span> <span>Galicia Crack</span>
-          </button>
-          <button id="nav-historial" onclick="cambiarSeccion('historial')" class="ios-btn win-nav-btn text-xs py-1.5 px-2 w-full text-left flex items-center gap-2">
-            <span>📜</span> <span>Historial y Búsqueda</span>
-          </button>
-        </nav>
+      <!-- FECHA Y RESUMEN DIARIO COMPACTO -->
+      <div class="flex items-center justify-between bg-white px-2 py-0.5 border border-[#a8b4be] rounded text-[10px] shadow-sm shrink-0">
+        <div class="flex items-center gap-0.5">
+          <button onclick="cambiarDia(-1)" class="btn-sq-micro" title="Anterior">◄</button>
+          <input type="date" id="datePicker" onchange="actualizarFechaManual()" class="border font-mono font-bold text-[9px] h-4 px-0.5 w-24" />
+          <button onclick="cambiarDia(1)" class="btn-sq-micro" title="Siguiente">►</button>
+        </div>
+        <span class="font-bold text-[10px] shrink-0 text-gray-700">Excel: <strong id="formattedDateHeader" class="text-blue-900">--/--/--</strong></span>
       </div>
 
-      <hr class="border-[#c2cbd3] my-0.5" />
-
-      <div class="flex-1 flex flex-col space-y-2 overflow-hidden">
-        
-        <div class="font-bold text-[11px] bg-gradient-to-b from-[#4a5460] to-[#343b44] text-white px-2 py-1 rounded shadow-sm flex justify-between items-center text-shadow">
-          <span>📅 Consolidado del Día</span>
+      <div class="bg-gradient-to-b from-[#ffffff] to-[#eaf0f5] px-2 py-1 border border-[#a8b4be] rounded shadow-inner space-y-0.5 shrink-0">
+        <div class="flex justify-between items-baseline">
+          <span class="font-bold text-[10px] text-gray-600 uppercase">Pagos Totales:</span>
+          <span class="font-black text-sm text-blue-900 font-mono" id="dailyTotalCount">0</span>
         </div>
-
-        <div class="flex items-center justify-between bg-white px-2 py-1 border border-[#a8b4be] rounded-md text-[10px] shadow-sm">
-          <div class="flex items-center gap-1">
-            <button onclick="cambiarDia(-1)" class="btn-sq-micro" title="Anterior">◄</button>
-            <input type="date" id="datePicker" onchange="actualizarFechaManual()" class="border font-mono font-bold text-[9px] h-5 px-1 w-24" />
-            <button onclick="cambiarDia(1)" class="btn-sq-micro" title="Siguiente">►</button>
-          </div>
-          <span class="font-bold text-[10px] shrink-0 text-gray-700">Excel: <strong id="formattedDateHeader" class="text-blue-900">--/--/--</strong></span>
+        <div class="flex justify-between items-baseline">
+          <span class="font-bold text-[10px] text-gray-600 uppercase">Monto Total Día:</span>
+          <span class="font-black text-base text-green-700 font-mono leading-none">$<span id="dailyTotalAmount">0,00</span></span>
         </div>
-
-        <div class="bg-gradient-to-b from-[#ffffff] to-[#eaf0f5] p-2.5 border border-[#a8b4be] rounded-lg shadow-inner space-y-1.5">
-          <div class="flex justify-between items-baseline border-b border-gray-300 pb-1">
-            <span class="font-bold text-[11px] text-gray-600 uppercase tracking-wide">Pagos Totales:</span>
-            <span class="font-black text-xl text-blue-900 font-mono" id="dailyTotalCount">0</span>
-          </div>
-          <div class="text-right pt-0.5">
-            <span class="block text-[9px] font-bold text-gray-500 uppercase">Monto Total Día</span>
-            <span class="font-black text-2xl text-green-700 font-mono leading-tight">$<span id="dailyTotalAmount">0,00</span></span>
-          </div>
-          <div class="text-[9px] text-gray-600 font-bold flex justify-between pt-1 border-t border-gray-200">
-            <span>📦 Lotes Masivos:</span>
-            <span id="dailyLotesCount" class="text-black font-mono">0</span>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <div class="flex gap-1.5">
-            <button id="btnCopiarDiario" onclick="copiarConsolidadoDiario()" disabled class="ios-btn flex-1 font-bold text-[10px] py-1">📋 COPIAR TODO (EXCEL)</button>
-            <button onclick="vaciarConsolidadoDiario()" class="ios-btn-red text-[10px] px-2 py-1 rounded" title="Vaciar Consolidado">🗑️</button>
-          </div>
-          
-          <div class="flex gap-1.5">
-            <button id="btnGuardarHistorial" onclick="guardarPendientesEnHistorial()" disabled class="ios-btn-green flex-1 font-bold text-[10px] py-1">
-              📥 CARGAR PENDIENTES AL HISTORIAL
-            </button>
-            <button onclick="resetearEstadosCargados()" class="ios-btn text-blue-900 text-[10px] px-2 py-1" title="Resetear marcas de cargado">🔄</button>
-          </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto bg-white border border-[#a8b4be] rounded-md shadow-sm">
-          <table class="win-table">
-            <thead>
-              <tr>
-                <th id="thFechaLote">FECHA</th>
-                <th>CUIT / NOMBRE</th>
-                <th class="col-right">IMPORTE</th>
-                <th class="text-center">ESTADO</th>
-                <th class="text-center">X</th>
-              </tr>
-            </thead>
-            <tbody id="dailyTableBody" class="font-mono">
-              <tr><td colspan="5" class="text-center text-gray-500 py-6 text-[10px] italic">Sin nada por acá todavía, bro.</td></tr>
-            </tbody>
-          </table>
+        <div class="flex justify-between items-baseline pt-0.5 border-t border-gray-200 text-[9px] text-gray-600 font-bold">
+          <span>📦 Lotes Masivos:</span>
+          <span id="dailyLotesCount" class="text-black font-mono">0</span>
         </div>
       </div>
 
-      <div class="border border-[#a8b4be] p-2 bg-white rounded-lg shadow-sm space-y-1 shrink-0 mt-auto">
-        <h2 class="font-bold text-[10px] border-b border-gray-200 pb-1 text-gray-700 uppercase">🏦 Total por Cuenta</h2>
-        <div id="cuentasDesglose" class="space-y-0.5 text-[10px] font-mono">
+      <!-- BOTONES DE ACCIÓN RÁPIDA -->
+      <div class="flex flex-col gap-1 shrink-0">
+        <div class="flex gap-1">
+          <button id="btnCopiarDiario" onclick="copiarConsolidadoDiario()" disabled class="ios-btn flex-1 font-bold text-[9px] py-0.5">📋 COPIAR TODO (EXCEL)</button>
+          <button onclick="vaciarConsolidadoDiario()" class="ios-btn-red text-[9px] px-2 py-0.5 rounded" title="Vaciar Consolidado">🗑️</button>
+        </div>
+        <div class="flex gap-1">
+          <button id="btnGuardarHistorial" onclick="guardarPendientesEnHistorial()" disabled class="ios-btn-green flex-1 font-bold text-[9px] py-0.5">
+            📥 CARGAR PENDIENTES AL HISTORIAL
+          </button>
+          <button onclick="resetearEstadosCargados()" class="ios-btn text-blue-900 text-[9px] px-1.5 py-0.5" title="Resetear marcas de cargado">🔄</button>
+        </div>
+      </div>
+
+      <!-- BOTÓN ÚNICO DE EDICIÓN DE LOTES DEL DÍA -->
+      <div class="shrink-0 pt-0.5">
+        <button id="btnToggleEdicionLote" onclick="toggleModoEdicionLotes()" class="ios-btn w-full text-[10px] py-1 font-bold flex items-center justify-center gap-1.5 shadow-sm text-blue-950">
+          <span>✏️</span> <span>EDITAR NOMBRES DE LOTE</span>
+        </button>
+      </div>
+
+      <!-- TABLA CONSOLIDADA DEL DÍA CON COLUMNA CTA Y EDICIÓN -->
+      <div class="flex-1 overflow-y-auto bg-white border border-[#a8b4be] rounded shadow-inner min-h-[140px]">
+        <table class="win-table">
+          <thead class="sticky top-0 z-10">
+            <tr>
+              <th id="thFechaLote" class="w-16 text-[10px]">LOTE</th>
+              <th>CUIT / NOMBRE</th>
+              <th class="col-right">IMPORTE</th>
+              <th class="text-center w-12">CTA</th>
+              <th class="text-center w-6">X</th>
+            </tr>
+          </thead>
+          <tbody id="dailyTableBody" class="font-mono">
+            <tr><td colspan="5" class="text-center text-gray-500 py-6 text-[10px] italic">Sin nada por acá todavía, bro.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DESGLOSE TOTAL POR CUENTA -->
+      <div class="border border-[#a8b4be] px-2 py-1 bg-white rounded shadow-sm space-y-0.5 shrink-0 max-h-24 overflow-y-auto">
+        <h2 class="font-bold text-[9px] border-b border-gray-200 pb-0.5 text-gray-700 uppercase flex justify-between">
+          <span>🏦 Total por Cuenta</span>
+        </h2>
+        <div id="cuentasDesglose" class="space-y-0.5 text-[9px] font-mono">
           <p class="text-gray-400 italic">Sin datos rey</p>
         </div>
       </div>
@@ -405,7 +400,7 @@
   <div id="resizer" title="Arrastrá para cambiar el ancho"></div>
 
   <!-- MAIN VIEW -->
-  <main class="flex-1 overflow-y-auto space-y-3 h-[calc(100vh-1.5rem)] pl-2 pr-1 min-w-0">
+  <main class="flex-1 overflow-y-auto space-y-3 h-[calc(100vh-1rem)] pl-2 pr-1 min-w-0">
 
     <!-- SECCIÓN INTERBANKING -->
     <section id="sec-verificador" class="ios-window space-y-3">
@@ -803,7 +798,7 @@
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      if (newWidth >= 230 && newWidth <= 500) {
+      if (newWidth >= 250 && newWidth <= 530) {
         leftPanel.style.width = `${newWidth}px`;
       }
     });
@@ -834,6 +829,7 @@
     let ordenHistorialCampo = 'fecha';
     let ordenHistorialDireccion = 'desc';
 
+    let modoEdicionLotes = false;
     let datosMemoriaExcel = [];
 
     window.onload = function() {
@@ -915,7 +911,6 @@
     function actualizarFormatoFechaHeader() {
       const formatted = obtenerFechaFormatted();
       document.getElementById('formattedDateHeader').textContent = formatted;
-      document.getElementById('thFechaLote').textContent = formatted;
     }
 
     function cambiarSeccion(seccion) {
@@ -1239,6 +1234,28 @@
     }
 
     // --- CONSOLIDADO DIARIO ---
+    function toggleModoEdicionLotes() {
+      modoEdicionLotes = !modoEdicionLotes;
+      const btn = document.getElementById('btnToggleEdicionLote');
+      if (modoEdicionLotes) {
+        btn.classList.add('ios-btn-green');
+        btn.innerHTML = '<span>💾</span> <span>GUARDAR LOTES</span>';
+        // Desplegar todos los lotes para verlos
+        lotesConsolidados.forEach(l => l.visible = true);
+      } else {
+        btn.classList.remove('ios-btn-green');
+        btn.innerHTML = '<span>✏️</span> <span>EDITAR NOMBRES DE LOTE</span>';
+      }
+      renderConsolidadoDiario();
+    }
+
+    function actualizarNombreLoteDesdeConsolidado(indexLote, nuevoNombre) {
+      if (lotesConsolidados[indexLote]) {
+        lotesConsolidados[indexLote].nombre = nuevoNombre.trim() !== "" ? nuevoNombre.trim() : "SIN NOMBRE";
+        guardarDatosLocalStorage();
+      }
+    }
+
     function agregarAlConsolidadoDiario(nombreLote, nuevosDatos, esManual, customId = null, esGaliciaManual = false) {
       if (nuevosDatos.length === 0) return null;
       
@@ -1336,18 +1353,22 @@
 
         const iconToggle = lote.visible ? '−' : '+';
 
+        let headerLoteDisplay = modoEdicionLotes
+          ? `<input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote text-black" onclick="event.stopPropagation()" />`
+          : `<span class="text-white font-bold tracking-wide truncate max-w-[130px]">${lote.nombre}</span>`;
+
         htmlConsolidado += `
           <tr class="lote-header-row">
             <td colspan="5" class="py-1 px-1.5">
               <div class="flex items-center justify-between text-[10px] gap-1">
-                <div class="flex items-center gap-1 shrink-0">
+                <div class="flex items-center gap-1 flex-1 overflow-hidden">
                   <button onclick="toggleVisibilidadLote(${indexLote})" class="btn-sq-micro" title="Expandir/Colapsar">${iconToggle}</button>
-                  <span class="text-white font-bold tracking-wide">${lote.nombre}</span>
+                  ${headerLoteDisplay}
                 </div>
-                <div class="flex items-center justify-end gap-1.5 flex-1 overflow-hidden">
-                  <span class="text-gray-200 font-bold shrink-0">(${lote.registros.length})</span>
-                  <span class="text-yellow-300 font-bold truncate">$${subtotalLote.toLocaleString('es-AR', {minimumFractionDigits:2})}</span>
-                  <button onclick="eliminarLoteCompleto(${indexLote})" class="btn-sq-micro btn-sq-danger shrink-0" title="Eliminar Lote">✕</button>
+                <div class="flex items-center justify-end gap-1 shrink-0">
+                  <span class="text-gray-200 font-bold">(${lote.registros.length})</span>
+                  <span class="text-yellow-300 font-bold">$${subtotalLote.toLocaleString('es-AR', {minimumFractionDigits:2})}</span>
+                  <button onclick="eliminarLoteCompleto(${indexLote})" class="btn-sq-micro btn-sq-danger" title="Eliminar Lote">✕</button>
                 </div>
               </div>
             </td>
@@ -1356,22 +1377,30 @@
 
         if (lote.visible) {
           lote.registros.forEach((d, indexRegistro) => {
-            let celdaLote = indexRegistro === 0 ? `<td class="font-bold text-blue-900 bg-gray-100 truncate max-w-[30px]">${lote.nombre}</td>` : `<td></td>`;
+            let celdaLote = "";
+            if (modoEdicionLotes) {
+              celdaLote = indexRegistro === 0 
+                ? `<td class="p-0.5"><input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote" /></td>`
+                : `<td></td>`;
+            } else {
+              celdaLote = indexRegistro === 0 
+                ? `<td class="font-bold text-blue-900 bg-gray-100 truncate max-w-[65px] text-[8.5px]" title="${lote.nombre}">${lote.nombre}</td>` 
+                : `<td></td>`;
+            }
 
             const estaCargado = d.enviadoAHistorial === true;
             const rowClass = estaCargado ? 'row-cargado' : '';
-            const badgeEstado = estaCargado 
-              ? `<span class="font-bold text-green-800 bg-green-200 px-1 py-0.5 rounded text-[8px]" title="Cargado en historial">✔ CARGADO</span>`
-              : `<span class="font-bold text-red-700 bg-red-100 px-1 py-0.5 rounded text-[8px]" title="Pendiente de enviar">🔴 PENDIENTE</span>`;
+            const ctaBadge = d.cuenta ? d.cuenta.toString().trim() : 'S/D';
+            let ctaEstilo = ctaBadge === '133-3' ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900';
 
             let displayImporte = d.esGaliciaManualUSD ? `US$ ${d.importe}` : `$${d.importe}`;
 
             htmlConsolidado += `
               <tr class="text-[9px] ${rowClass}">
                 ${celdaLote}
-                <td class="truncate max-w-[60px]" title="${d.cuit} - ${d.n1}">${d.cuit}<br/><span class="text-gray-600 text-[8px]">${d.n1}</span></td>
+                <td class="truncate max-w-[80px]" title="${d.cuit} - ${d.n1}">${d.cuit}<br/><span class="text-gray-600 text-[8px]">${d.n1}</span></td>
                 <td class="col-right font-bold text-green-700">${displayImporte}</td>
-                <td class="text-center font-bold">${badgeEstado}</td>
+                <td class="text-center font-bold font-mono ${ctaEstilo} text-[8.5px] px-1">${ctaBadge}</td>
                 <td class="text-center">
                   <button onclick="eliminarRegistroIndividual(${indexLote}, ${indexRegistro})" class="btn-sq-micro" title="Borrar fila">🗑️</button>
                 </td>
@@ -1960,7 +1989,6 @@
         let loteLimpio = (item.lote || "").toString().trim().toUpperCase();
         let esGalicia = ctaLimpia === "288" || ctaLimpia.startsWith("133") || ctaLimpia.includes("GALICIA") || loteLimpio.includes("GALICIA");
 
-        // Naranja pastel suave (#ffe6d0) / Violeta pastel suave (#eee2ff)
         const colorFondo = esGalicia ? '#ffe6d0' : '#eee2ff';
         const inlineBg = `style="background-color: ${colorFondo} !important;"`;
 
