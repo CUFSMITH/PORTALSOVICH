@@ -280,15 +280,23 @@
       font-weight: bold;
     }
 
-    .input-edicion-lote {
-      width: 100%;
-      font-size: 9px;
-      padding: 1px 3px;
+    /* INPUT SKEUOMORPHIC BLANCO CON BORDES REDONDEADOS Y SOMBRA INTERIOR */
+    .input-edicion-lote-ios {
+      flex: 1;
+      min-width: 0;
+      font-size: 10px;
       font-weight: bold;
-      border: 1px solid #2563eb;
-      background: #fef08a;
-      border-radius: 3px;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+      color: #1e293b;
+      padding: 2px 6px;
+      background: #ffffff !important;
+      border: 1px solid #3b82f6 !important;
+      border-radius: 6px !important;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3) !important;
+      outline: none;
+    }
+    .input-edicion-lote-ios:focus {
+      border-color: #1d4ed8 !important;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.2), 0 0 4px rgba(59, 130, 246, 0.6) !important;
     }
   </style>
 </head>
@@ -1240,8 +1248,6 @@
       if (modoEdicionLotes) {
         btn.classList.add('ios-btn-green');
         btn.innerHTML = '<span>💾</span> <span>GUARDAR LOTES</span>';
-        // Desplegar todos los lotes para verlos
-        lotesConsolidados.forEach(l => l.visible = true);
       } else {
         btn.classList.remove('ios-btn-green');
         btn.innerHTML = '<span>✏️</span> <span>EDITAR NOMBRES DE LOTE</span>';
@@ -1353,19 +1359,20 @@
 
         const iconToggle = lote.visible ? '−' : '+';
 
+        // Renderizado del encabezado del lote (fiel a la captura: botón [+] / [-], input blanco redondeado o texto, y subtotal)[cite: 5]
         let headerLoteDisplay = modoEdicionLotes
-          ? `<input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote text-black" onclick="event.stopPropagation()" />`
+          ? `<input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote-ios" onclick="event.stopPropagation()" />`
           : `<span class="text-white font-bold tracking-wide truncate max-w-[130px]">${lote.nombre}</span>`;
 
         htmlConsolidado += `
           <tr class="lote-header-row">
             <td colspan="5" class="py-1 px-1.5">
-              <div class="flex items-center justify-between text-[10px] gap-1">
-                <div class="flex items-center gap-1 flex-1 overflow-hidden">
+              <div class="flex items-center justify-between text-[10px] gap-1.5">
+                <div class="flex items-center gap-1.5 flex-1 overflow-hidden">
                   <button onclick="toggleVisibilidadLote(${indexLote})" class="btn-sq-micro" title="Expandir/Colapsar">${iconToggle}</button>
                   ${headerLoteDisplay}
                 </div>
-                <div class="flex items-center justify-end gap-1 shrink-0">
+                <div class="flex items-center justify-end gap-1.5 shrink-0">
                   <span class="text-gray-200 font-bold">(${lote.registros.length})</span>
                   <span class="text-yellow-300 font-bold">$${subtotalLote.toLocaleString('es-AR', {minimumFractionDigits:2})}</span>
                   <button onclick="eliminarLoteCompleto(${indexLote})" class="btn-sq-micro btn-sq-danger" title="Eliminar Lote">✕</button>
@@ -1377,16 +1384,9 @@
 
         if (lote.visible) {
           lote.registros.forEach((d, indexRegistro) => {
-            let celdaLote = "";
-            if (modoEdicionLotes) {
-              celdaLote = indexRegistro === 0 
-                ? `<td class="p-0.5"><input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote" /></td>`
-                : `<td></td>`;
-            } else {
-              celdaLote = indexRegistro === 0 
-                ? `<td class="font-bold text-blue-900 bg-gray-100 truncate max-w-[65px] text-[8.5px]" title="${lote.nombre}">${lote.nombre}</td>` 
-                : `<td></td>`;
-            }
+            let celdaLote = indexRegistro === 0 
+              ? `<td class="font-bold text-blue-900 bg-gray-100 truncate max-w-[65px] text-[8.5px]" title="${lote.nombre}">${lote.nombre}</td>` 
+              : `<td></td>`;
 
             const estaCargado = d.enviadoAHistorial === true;
             const rowClass = estaCargado ? 'row-cargado' : '';
