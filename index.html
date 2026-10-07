@@ -7,7 +7,6 @@
   
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋🏿‍♂️</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- LIBRERÍA PARA LEER ARCHIVOS DE EXCEL DIRECTAMENTE -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -27,7 +26,6 @@
       color: #ffffff;
     }
 
-    /* CONTENEDOR VENTANA ESTILO IOS 6 */
     .ios-window {
       background: #f7f9fa;
       border: 1px solid #9aa7b2;
@@ -36,7 +34,6 @@
       overflow: hidden;
     }
 
-    /* BARRA DE TÍTULO TIPO HEADER IOS 6 / TOOLBAR */
     .ios-title-bar {
       background: linear-gradient(to bottom, #4f5863 0%, #3a414b 50%, #2f353d 51%, #262b32 100%);
       border-bottom: 1px solid #1a1e23;
@@ -50,7 +47,6 @@
       justify-content: space-between;
     }
 
-    /* BOTONES ESTILO IOS 6 SKEUOMORPHIC */
     .ios-btn {
       background: linear-gradient(to bottom, #ffffff 0%, #f1f3f5 48%, #e1e4e8 52%, #cfd4da 100%);
       border: 1px solid #8e99a4;
@@ -76,7 +72,6 @@
       box-shadow: none;
     }
 
-    /* BOTÓN AZUL ESTILO ACTION IOS */
     .ios-btn-blue {
       background: linear-gradient(to bottom, #5992f5 0%, #3676e8 49%, #2766d8 51%, #1d55bf 100%);
       border: 1px solid #164396;
@@ -84,15 +79,7 @@
       text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
     }
-    .ios-btn-blue:hover {
-      background: linear-gradient(to bottom, #699ef7 0%, #4480ed 49%, #316fe0 51%, #235ec7 100%);
-    }
-    .ios-btn-blue:active {
-      background: linear-gradient(to bottom, #1d55bf 0%, #2766d8 100%);
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
-    }
 
-    /* BOTÓN VERDE ESTILO CONFIRMAR */
     .ios-btn-green {
       background: linear-gradient(to bottom, #8ee04b 0%, #68c727 49%, #55b219 51%, #459a11 100%);
       border: 1px solid #2e6d08;
@@ -100,15 +87,7 @@
       text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
-    .ios-btn-green:hover {
-      background: linear-gradient(to bottom, #99ea56 0%, #72cf30 49%, #5ebc21 51%, #4ea519 100%);
-    }
-    .ios-btn-green:active {
-      background: linear-gradient(to bottom, #459a11 0%, #55b219 100%);
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
-    }
 
-    /* BOTÓN ROJO / ELIMINAR */
     .ios-btn-red {
       background: linear-gradient(to bottom, #f06a65 0%, #e2433d 49%, #d42e27 51%, #b81b15 100%);
       border: 1px solid #7c0e09;
@@ -116,29 +95,15 @@
       text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
     }
-    .ios-btn-red:hover {
-      background: linear-gradient(to bottom, #f57975 0%, #e8524c 49%, #dc3a34 51%, #c6241e 100%);
-    }
-    .ios-btn-red:active {
-      background: linear-gradient(to bottom, #b81b15 0%, #d42e27 100%);
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
-    }
 
-    /* INPUTS & SELECTS CON RELIEVE INTERNO */
     input[type="text"], input[type="date"], select, textarea {
       background: #ffffff;
       border: 1px solid #9aa7b2;
       border-radius: 5px;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-      border-color: #3b7ced;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 0 5px rgba(59, 124, 237, 0.5);
     }
 
-    /* TABLAS ESTILO METÁLICO IOS */
     table.win-table {
       width: 100%;
       border-collapse: collapse;
@@ -163,19 +128,7 @@
     table.win-table th.th-sortable {
       cursor: pointer;
       user-select: none;
-      -webkit-user-select: none;
       white-space: nowrap;
-    }
-    table.win-table th.th-sortable:hover {
-      background: linear-gradient(to bottom, #ffffff 0%, #e8edf2 100%);
-    }
-
-    .sort-indicator {
-      display: inline-block;
-      font-size: 9px;
-      margin-left: 2px;
-      color: #2459b3;
-      font-weight: bold;
     }
 
     .lote-header-row {
@@ -187,21 +140,6 @@
 
     .border-nueva-fecha {
       border-top: 3px solid #36506c !important;
-    }
-
-    /* FILAS EN HISTORIAL */
-    .row-galicia-historial td {
-      background-color: #ffe6d0 !important;
-    }
-    .row-galicia-historial:hover td {
-      background-color: #ffd8b5 !important;
-    }
-
-    .row-interbanking-historial td {
-      background-color: #eee2ff !important;
-    }
-    .row-interbanking-historial:hover td {
-      background-color: #e2ceff !important;
     }
 
     .col-right {
@@ -227,18 +165,21 @@
     .btn-sq-micro:hover {
       background: #ffffff;
     }
-    .btn-sq-micro:active {
-      background: #c5ccd4;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    .btn-sq-comprobante {
+      background: linear-gradient(to bottom, #e3edf7 0%, #bcd0e6 100%);
+      border-color: #728ea9;
+      color: #1a4269;
+    }
+    .btn-sq-comprobante:hover {
+      background: #ffffff;
+      border-color: #2459b3;
     }
 
     .btn-sq-danger {
       background: linear-gradient(to bottom, #f06a65 0%, #d42e27 100%);
       color: #ffffff;
       border-color: #8c1a15;
-    }
-    .btn-sq-danger:hover {
-      background: #e8433d;
     }
 
     .row-cargado td {
@@ -249,7 +190,6 @@
       width: 8px;
       cursor: col-resize;
       background: transparent;
-      transition: background 0.15s;
     }
     #resizer:hover, #resizer.resizing {
       background: #9aa7b2;
@@ -270,17 +210,7 @@
       font-size: 11px;
       font-family: monospace;
     }
-    .comparison-list li:last-child {
-      border-bottom: none;
-    }
 
-    .item-error {
-      background-color: #ffe6e6 !important;
-      color: #b30000 !important;
-      font-weight: bold;
-    }
-
-    /* INPUT SKEUOMORPHIC BLANCO CON BORDES REDONDEADOS Y SOMBRA INTERIOR */
     .input-edicion-lote-ios {
       flex: 1;
       min-width: 0;
@@ -294,13 +224,101 @@
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.3) !important;
       outline: none;
     }
-    .input-edicion-lote-ios:focus {
-      border-color: #1d4ed8 !important;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.2), 0 0 4px rgba(59, 130, 246, 0.6) !important;
+
+    /* MODAL DE PROGRESO DE DESCARGA OCULTA */
+    #modalProgresoDescarga {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ios-progress-box {
+      background: #f7f9fa;
+      border: 1px solid #7c8e9f;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      width: 320px;
+      padding: 16px;
+    }
+
+    .ios-progress-bar-bg {
+      background: #d6dde3;
+      border-radius: 8px;
+      height: 12px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.25);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .ios-progress-bar-fill {
+      height: 100%;
+      width: 5%;
+      background: linear-gradient(to bottom, #5992f5 0%, #2766d8 51%, #1d55bf 100%);
+      transition: width 0.4s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* TOAST DE DESCARGA FINALIZADA */
+    #toastDescarga {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: linear-gradient(to bottom, #ffffff 0%, #f4f6f8 100%);
+      border: 1px solid #7c8e9f;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      padding: 10px 14px;
+      min-width: 290px;
+      animation: slideUp 0.25s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
 <body class="min-h-screen flex p-2 gap-0 overflow-hidden">
+
+  <!-- MODAL DE PROGRESO OCULTO -->
+  <div id="modalProgresoDescarga" class="flex flex-col">
+    <div class="ios-progress-box font-sans space-y-2">
+      <div class="flex items-center justify-between border-b border-gray-300 pb-1.5">
+        <span class="font-bold text-xs text-blue-900 flex items-center gap-1.5">
+          <span>⚙️</span> <span>Descargando Comprobante</span>
+        </span>
+        <span class="text-[10px] text-gray-500 font-mono" id="progresoPorcentaje">10%</span>
+      </div>
+      <div class="text-[11px] font-bold text-gray-700 truncate" id="progresoDetalleProveedor">Proveedor...</div>
+      <div class="text-[10px] text-gray-500" id="progresoEstadoTexto">Iniciando proceso en segundo plano...</div>
+      <div class="ios-progress-bar-bg">
+        <div id="progresoBarraFill" class="ios-progress-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST COMPROBANTE DESCARGADO -->
+  <div id="toastDescarga" class="flex flex-col gap-2 font-sans">
+    <div class="flex items-center justify-between border-b border-gray-200 pb-1">
+      <span class="font-bold text-xs text-green-700 flex items-center gap-1">
+        <span>✅</span> <span id="toastTitulo">¡Descargado!</span>
+      </span>
+      <button onclick="cerrarToast()" class="text-gray-400 hover:text-black font-bold text-xs">✕</button>
+    </div>
+    <div class="text-[11px] text-gray-700 font-mono truncate max-w-xs" id="toastNombreArchivo">comprobantes.zip</div>
+    <div class="flex justify-end gap-1.5 pt-1">
+      <button id="btnAbrirUbicacionToast" class="ios-btn-blue text-[10px] py-1 px-2.5 font-bold rounded flex items-center gap-1">
+        <span>📂</span> <span>Abrir Ubicación</span>
+      </button>
+      <button onclick="cerrarToast()" class="ios-btn text-[10px] py-1 px-2 rounded">Cerrar</button>
+    </div>
+  </div>
 
   <!-- PANEL IZQUIERDO -->
   <aside id="leftPanel" class="ios-window shrink-0 flex flex-col h-[calc(100vh-1rem)] sticky top-2" style="width: 330px; min-width: 250px; max-width: 530px;">
@@ -315,7 +333,6 @@
 
     <div class="flex-1 flex flex-col p-2 space-y-1.5 overflow-hidden bg-[#eef2f5]">
       
-      <!-- BOTONES DE NAVEGACIÓN EN LÍNEA -->
       <nav class="grid grid-cols-3 gap-1 shrink-0">
         <button id="nav-verificador" onclick="cambiarSeccion('verificador')" class="ios-btn text-[11px] py-1 px-1 text-center truncate font-bold" title="Interbanking">
           🔍 Interb.
@@ -328,7 +345,6 @@
         </button>
       </nav>
 
-      <!-- FECHA Y RESUMEN DIARIO COMPACTO -->
       <div class="flex items-center justify-between bg-white px-2 py-0.5 border border-[#a8b4be] rounded text-[10px] shadow-sm shrink-0">
         <div class="flex items-center gap-0.5">
           <button onclick="cambiarDia(-1)" class="btn-sq-micro" title="Anterior">◄</button>
@@ -353,7 +369,6 @@
         </div>
       </div>
 
-      <!-- BOTONES DE ACCIÓN RÁPIDA -->
       <div class="flex flex-col gap-1 shrink-0">
         <div class="flex gap-1">
           <button id="btnCopiarDiario" onclick="copiarConsolidadoDiario()" disabled class="ios-btn flex-1 font-bold text-[9px] py-0.5">📋 COPIAR TODO (EXCEL)</button>
@@ -367,14 +382,12 @@
         </div>
       </div>
 
-      <!-- BOTÓN ÚNICO DE EDICIÓN DE LOTES DEL DÍA -->
       <div class="shrink-0 pt-0.5">
         <button id="btnToggleEdicionLote" onclick="toggleModoEdicionLotes()" class="ios-btn w-full text-[10px] py-1 font-bold flex items-center justify-center gap-1.5 shadow-sm text-blue-950">
           <span>✏️</span> <span>EDITAR NOMBRES DE LOTE</span>
         </button>
       </div>
 
-      <!-- TABLA CONSOLIDADA DEL DÍA CON COLUMNA CTA Y EDICIÓN -->
       <div class="flex-1 overflow-y-auto bg-white border border-[#a8b4be] rounded shadow-inner min-h-[140px]">
         <table class="win-table">
           <thead class="sticky top-0 z-10">
@@ -392,7 +405,6 @@
         </table>
       </div>
 
-      <!-- DESGLOSE TOTAL POR CUENTA -->
       <div class="border border-[#a8b4be] px-2 py-1 bg-white rounded shadow-sm space-y-0.5 shrink-0 max-h-24 overflow-y-auto">
         <h2 class="font-bold text-[9px] border-b border-gray-200 pb-0.5 text-gray-700 uppercase flex justify-between">
           <span>🏦 Total por Cuenta</span>
@@ -468,7 +480,6 @@
         </fieldset>
 
         <div id="resultsContainer" class="hidden space-y-2 border border-amber-300 p-3 bg-amber-50/60 rounded-xl shadow-sm">
-          
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-2 bg-white p-2 rounded-lg border">
             <div class="flex items-center gap-2">
               <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO / NOMBRE DE LOTE:</span>
@@ -497,7 +508,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN GALICIA CRACK -->
+    <!-- SECCIÓN GALICIA -->
     <section id="sec-galicia" class="ios-window space-y-3 hidden">
       <div class="ios-title-bar">
         <div class="flex items-center gap-2">
@@ -508,8 +519,6 @@
       </div>
 
       <div class="p-3 space-y-3 bg-[#f7f9fa]">
-
-        <!-- 1. COMPARADOR DE PROVEEDORES CON TXT -->
         <fieldset class="space-y-2 bg-white border border-[#a8b4be] p-3 rounded-xl shadow-sm">
           <legend class="font-bold text-xs text-blue-900 px-1.5">🔍 Comparar Proveedores con nuevo TXT (Galicia)</legend>
           <p class="text-[11px] text-gray-600">Cargá un segundo archivo TXT de Galicia para verificar coincidencia de nombres con la lista actual.</p>
@@ -520,13 +529,10 @@
           </div>
 
           <div id="resultadoComparacion" class="hidden pt-2 border-t border-gray-200 space-y-2">
-            
             <div id="resumenNumericoComparacion" class="p-2 border border-gray-300 rounded-lg bg-[#f0f3f6] font-mono text-center font-bold text-sm shadow-inner">
               <span id="badgeResumenComp">0 OK | 0 ERROR</span>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-              
               <div class="space-y-1">
                 <h4 class="font-bold text-[11px] text-green-900 flex items-center justify-between bg-green-100 p-1.5 border border-green-300 rounded">
                   <span>Coincidentes (OK)</span>
@@ -534,7 +540,6 @@
                 </h4>
                 <ul id="listaCoincidencias" class="comparison-list"></ul>
               </div>
-
               <div class="space-y-1">
                 <h4 class="font-bold text-[11px] text-red-900 flex items-center justify-between bg-red-100 p-1.5 border border-red-300 rounded">
                   <span>No coincide</span>
@@ -542,7 +547,6 @@
                 </h4>
                 <ul id="listaFaltantes" class="comparison-list"></ul>
               </div>
-
               <div class="space-y-1">
                 <h4 class="font-bold text-[11px] text-blue-900 flex items-center justify-between bg-blue-100 p-1.5 border border-blue-300 rounded">
                   <span>A quien se le pago</span>
@@ -550,12 +554,10 @@
                 </h4>
                 <ul id="listaNuevos" class="comparison-list"></ul>
               </div>
-
             </div>
           </div>
         </fieldset>
 
-        <!-- 2. CARGA POR ARCHIVO TXT DE GALICIA -->
         <div class="space-y-2 border border-[#a8b4be] p-3 bg-white rounded-xl shadow-sm">
           <div class="flex items-center gap-2 bg-[#f0f3f6] p-2 border border-gray-300 rounded-lg">
             <span class="font-bold text-xs text-blue-900">🏷️ NÚMERO DE LOTE GALICIA:</span>
@@ -588,19 +590,14 @@
           </div>
         </div>
 
-        <!-- 3. PAGOS MANUALES GALICIA (FORMATO 50/50) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-          
-          <!-- LADO IZQUIERDO -->
           <fieldset class="bg-gradient-to-b from-[#fffbf5] to-[#fff4e5] border border-amber-400 p-3 rounded-xl shadow-sm space-y-2.5 flex flex-col justify-between">
             <legend class="font-bold text-xs text-amber-900 px-1.5">💵 Pagos Manuales Galicia</legend>
             <div class="space-y-2">
-              
               <div class="flex items-center justify-between gap-1">
                 <label class="text-[11px] font-bold text-gray-800 shrink-0">🏷️ N° de Lote:</label>
                 <input type="text" id="galiciaManualLoteNameInput" value="GALICIA MANUAL 1" class="font-mono text-xs font-bold border border-amber-600 bg-white px-2 py-0.5 w-44 rounded" placeholder="Ej: GALICIA MANUAL 1" />
               </div>
-
               <div class="flex items-center justify-between gap-1">
                 <label class="text-[11px] font-bold text-gray-800 shrink-0">🏦 Cuenta Originante:</label>
                 <select id="selectCuentaGaliciaManual" class="font-mono text-xs font-bold border-2 border-amber-600 bg-white px-2 py-0.5 w-44 rounded">
@@ -608,7 +605,6 @@
                   <option value="288">288 (Pesos)</option>
                 </select>
               </div>
-
               <div class="flex justify-between items-center">
                 <span class="text-[11px] font-bold text-gray-700">Pegá aquí el texto:</span>
                 <button onclick="document.getElementById('inputGaliciaManual').value=''" class="btn-sq-micro">🧹</button>
@@ -620,29 +616,20 @@
             </button>
           </fieldset>
 
-          <!-- LADO DERECHO -->
           <fieldset class="bg-white border border-[#a8b4be] p-3 rounded-xl shadow-sm space-y-2 flex flex-col justify-between">
             <legend class="font-bold text-xs text-blue-900 px-1.5">📋 Pagos Galicia Procesados Recién</legend>
-            
             <div class="flex-1 overflow-x-auto overflow-y-auto max-h-48 border border-gray-300 rounded-lg bg-gray-50 shadow-inner">
               <table class="win-table font-mono text-[10px]">
                 <thead>
                   <tr class="bg-blue-100">
-                    <th>LOTE</th>
-                    <th>CUIT</th>
-                    <th>NOMBRE</th>
-                    <th class="col-right">IMPORTE</th>
-                    <th class="text-center">CTA</th>
+                    <th>LOTE</th><th>CUIT</th><th>NOMBRE</th><th class="col-right">IMPORTE</th><th class="text-center">CTA</th>
                   </tr>
                 </thead>
                 <tbody id="galiciaManualPreviewBody">
-                  <tr>
-                    <td colspan="5" class="text-center text-gray-500 py-6 italic text-[10px]">Aún no procesaste pagos manuales en esta sesión.</td>
-                  </tr>
+                  <tr><td colspan="5" class="text-center text-gray-500 py-6 italic text-[10px]">Aún no procesaste pagos manuales en esta sesión.</td></tr>
                 </tbody>
               </table>
             </div>
-
             <div class="flex justify-between items-center pt-1 border-t border-gray-200">
               <span class="font-bold text-[10px] text-gray-700">Cargados: <strong id="cntGaliciaManualProcesados" class="text-blue-900">0</strong></span>
               <button id="btnCopiarGaliciaManual" onclick="copiarTablaGaliciaManual()" disabled class="ios-btn font-bold text-xs px-2.5 py-1">
@@ -650,7 +637,6 @@
               </button>
             </div>
           </fieldset>
-
         </div>
 
       </div>
@@ -672,27 +658,22 @@
           <legend class="font-bold text-xs text-blue-900 px-1.5">🔍 FILTROS AVANZADOS EN TIEMPO REAL</legend>
           
           <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5">
-            
             <div class="space-y-0.5">
               <label class="font-bold text-[11px] block text-gray-700">📅 Fecha Desde:</label>
               <input type="date" id="filtroHistorialFechaDesde" onchange="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" />
             </div>
-
             <div class="space-y-0.5">
               <label class="font-bold text-[11px] block text-gray-700">📅 Fecha Hasta:</label>
               <input type="date" id="filtroHistorialFechaHasta" onchange="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" />
             </div>
-
             <div class="space-y-0.5">
               <label class="font-bold text-[11px] block text-gray-700">🏦 Cuenta Originante:</label>
-              <input type="text" id="filtroHistorialCuenta" oninput="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" placeholder="Ej: 5133, 615 o 133" />
+              <input type="text" id="filtroHistorialCuenta" oninput="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" />
             </div>
-
             <div class="space-y-0.5">
               <label class="font-bold text-[11px] block text-gray-700">🔎 CUIT / Beneficiario / Lote / CBU:</label>
-              <input type="text" id="filtroHistorialGeneral" oninput="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" placeholder="Escribí CUIT, Nombre, Lote..." />
+              <input type="text" id="filtroHistorialGeneral" oninput="renderHistorial()" class="font-mono text-xs border border-gray-300 px-2 py-1 bg-white w-full rounded" />
             </div>
-
           </div>
 
           <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-gray-200">
@@ -703,43 +684,29 @@
               </button>
               <input type="file" id="excelHistorialInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="previsualizarExcelEnMemoria(event)" />
               
-              <button onclick="exportarRespaldoJSON()" class="ios-btn font-bold text-xs py-1 px-3">
-                💾 EXPORTAR (.JSON)
-              </button>
-              <button onclick="document.getElementById('jsonRespaldoInput').click()" class="ios-btn font-bold text-xs py-1 px-3">
-                📂 IMPORTAR (.JSON)
-              </button>
+              <button onclick="exportarRespaldoJSON()" class="ios-btn font-bold text-xs py-1 px-3">💾 EXPORTAR (.JSON)</button>
+              <button onclick="document.getElementById('jsonRespaldoInput').click()" class="ios-btn font-bold text-xs py-1 px-3">📂 IMPORTAR (.JSON)</button>
               <input type="file" id="jsonRespaldoInput" accept=".json" class="hidden" onchange="importarRespaldoJSON(event)" />
 
               <button onclick="exportarHistorialExcel()" class="ios-btn font-bold text-xs py-1 px-3">📋 COPIAR FILTRADOS</button>
-              
-              <button onclick="eliminarPagosFiltrados()" class="ios-btn-red text-xs py-1 px-2.5 rounded font-bold" title="Borrar únicamente los pagos visibles actualmente">
-                🗑️ Borrar Filtrados
-              </button>
-              <button onclick="vaciarHistorial()" class="ios-btn-red text-xs py-1 px-2.5 rounded font-bold" title="Borrar Todo el Historial">
-                💥 Borrar Todo
-              </button>
+              <button onclick="eliminarPagosFiltrados()" class="ios-btn-red text-xs py-1 px-2.5 rounded font-bold" title="Borrar únicamente los pagos visibles">🗑️ Borrar Filtrados</button>
+              <button onclick="vaciarHistorial()" class="ios-btn-red text-xs py-1 px-2.5 rounded font-bold" title="Borrar Todo el Historial">💥 Borrar Todo</button>
             </div>
           </div>
         </fieldset>
 
-        <!-- PREVISUALIZACIÓN EN MEMORIA DE EXCEL -->
         <div id="panelPrevisualizacionExcel" class="hidden border border-amber-400 bg-amber-50 p-3 space-y-2 rounded-xl shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-300 pb-2">
             <div>
-              <span class="font-bold text-xs text-amber-900 block">👀 PREVISUALIZACIÓN EN MEMORIA (NO GUARDADO EN DISCO AÚN)</span>
+              <span class="font-bold text-xs text-amber-900 block">👀 PREVISUALIZACIÓN EN MEMORIA</span>
               <span class="text-[10px] text-amber-800 font-mono">
                 Registros: <strong id="previewExcelCount" class="text-black">0</strong> | 
                 Monto Total: <strong id="previewExcelAmount" class="text-green-800">$0,00</strong>
               </span>
             </div>
             <div class="flex gap-2">
-              <button onclick="confirmarImportacionExcel()" class="ios-btn-green font-bold text-xs px-3 py-1">
-                ✅ Confirmar e Importar al Historial
-              </button>
-              <button onclick="descartarPrevisualizacionExcel()" class="ios-btn-red font-bold text-xs px-3 py-1">
-                ❌ Descartar / Limpiar
-              </button>
+              <button onclick="confirmarImportacionExcel()" class="ios-btn-green font-bold text-xs px-3 py-1">✅ Confirmar e Importar</button>
+              <button onclick="descartarPrevisualizacionExcel()" class="ios-btn-red font-bold text-xs px-3 py-1">❌ Descartar</button>
             </div>
           </div>
 
@@ -747,13 +714,7 @@
             <table class="win-table font-mono">
               <thead>
                 <tr class="bg-amber-100">
-                  <th>FECHA</th>
-                  <th>LOTE</th>
-                  <th>CUIT</th>
-                  <th>BENEFICIARIO</th>
-                  <th class="col-right">IMPORTE</th>
-                  <th>CBU</th>
-                  <th class="text-center">CTA</th>
+                  <th>FECHA</th><th>LOTE</th><th>CUIT</th><th>BENEFICIARIO</th><th class="col-right">IMPORTE</th><th>CBU</th><th class="text-center">CTA</th>
                 </tr>
               </thead>
               <tbody id="tableBodyPreviewExcel"></tbody>
@@ -777,7 +738,7 @@
                   <th onclick="ordenarHistorial('importe')" class="col-right th-sortable" title="Ordenar por Importe">IMPORTE <span id="sortHistorial_importe" class="sort-indicator"></span></th>
                   <th onclick="ordenarHistorial('cbu')" class="th-sortable" title="Ordenar por CBU">CBU <span id="sortHistorial_cbu" class="sort-indicator"></span></th>
                   <th onclick="ordenarHistorial('cuenta')" class="text-center th-sortable" title="Ordenar por Cuenta">CTA <span id="sortHistorial_cuenta" class="sort-indicator"></span></th>
-                  <th class="text-center">ACCIÓN</th>
+                  <th class="text-center w-16">ACCIÓN</th>
                 </tr>
               </thead>
               <tbody id="tableBodyHistorial">
@@ -792,7 +753,6 @@
   </main>
 
   <script>
-    // --- RESIZE DEL PANEL ---
     const leftPanel = document.getElementById('leftPanel');
     const resizer = document.getElementById('resizer');
     let isResizing = false;
@@ -819,7 +779,6 @@
       }
     });
 
-    // --- VARIABLES DE ESTADO ---
     let datosGalicia = [];
     let ultimosDatosProcesados = [];
     let ultimosGaliciaManualProcesados = [];
@@ -839,6 +798,8 @@
 
     let modoEdicionLotes = false;
     let datosMemoriaExcel = [];
+
+    let ultimaRutaDescargada = "";
 
     window.onload = function() {
       cargarDatosLocalStorage();
@@ -1359,7 +1320,6 @@
 
         const iconToggle = lote.visible ? '−' : '+';
 
-        // Renderizado del encabezado del lote (fiel a la captura: botón [+] / [-], input blanco redondeado o texto, y subtotal)[cite: 5]
         let headerLoteDisplay = modoEdicionLotes
           ? `<input type="text" value="${lote.nombre}" onchange="actualizarNombreLoteDesdeConsolidado(${indexLote}, this.value)" class="input-edicion-lote-ios" onclick="event.stopPropagation()" />`
           : `<span class="text-white font-bold tracking-wide truncate max-w-[130px]">${lote.nombre}</span>`;
@@ -1945,6 +1905,121 @@
       return new Date(anio, mes, dia);
     }
 
+    // --- MANEJO DEL MODAL DE PROGRESO FLUIDO ---
+    let intervaloProgreso = null;
+
+    function iniciarModalProgreso(beneficiario) {
+      const modal = document.getElementById('modalProgresoDescarga');
+      const detProv = document.getElementById('progresoDetalleProveedor');
+      const estadoTxt = document.getElementById('progresoEstadoTexto');
+      const fillBar = document.getElementById('progresoBarraFill');
+      const pctTxt = document.getElementById('progresoPorcentaje');
+
+      detProv.textContent = beneficiario || "Proveedor";
+      estadoTxt.textContent = "Conectando con Interbanking (SIB1)...";
+      fillBar.style.width = "10%";
+      pctTxt.textContent = "10%";
+      modal.style.display = "flex";
+
+      let avance = 10;
+      clearInterval(intervaloProgreso);
+      intervaloProgreso = setInterval(() => {
+        if (avance < 90) {
+          avance += (avance < 50 ? 8 : 4);
+          fillBar.style.width = `${avance}%`;
+          pctTxt.textContent = `${avance}%`;
+
+          if (avance > 30 && avance < 60) {
+            estadoTxt.textContent = "Autenticando y completando filtros...";
+          } else if (avance >= 60) {
+            estadoTxt.textContent = "Generando y descargando archivo...";
+          }
+        }
+      }, 700);
+    }
+
+    function finalizarModalProgreso() {
+      clearInterval(intervaloProgreso);
+      const fillBar = document.getElementById('progresoBarraFill');
+      const pctTxt = document.getElementById('progresoPorcentaje');
+      const estadoTxt = document.getElementById('progresoEstadoTexto');
+
+      fillBar.style.width = "100%";
+      pctTxt.textContent = "100%";
+      estadoTxt.textContent = "¡Comprobante completado!";
+
+      setTimeout(() => {
+        document.getElementById('modalProgresoDescarga').style.display = "none";
+      }, 500);
+    }
+
+    // --- INTEGRACIÓN: BOTÓN DE DESCARGA CON PYTHON BOT (OCULTO) ---
+    async function dispararDescargaComprobante(btnElement, lote, fecha, cuit, beneficiario) {
+      const textoOriginal = btnElement.innerHTML;
+      btnElement.innerHTML = '⏳';
+      btnElement.disabled = true;
+
+      iniciarModalProgreso(beneficiario);
+
+      try {
+        const respuesta = await fetch("http://127.0.0.1:5000/descargar-comprobante", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lote, fecha, cuit, beneficiario })
+        });
+
+        if (!respuesta.ok) {
+          const errData = await respuesta.json();
+          throw new Error(errData.detail || "Error en el bot");
+        }
+
+        const resultado = await respuesta.json();
+        finalizarModalProgreso();
+        mostrarToastDescarga(resultado.nombre_archivo, resultado.ruta_completa);
+
+      } catch (err) {
+        clearInterval(intervaloProgreso);
+        document.getElementById('modalProgresoDescarga').style.display = "none";
+        console.error(err);
+        alert(`❌ Error al descargar comprobante:\n${err.message}\n\nAsegurate de que el bot en segundo plano esté activo.`);
+      } finally {
+        btnElement.innerHTML = textoOriginal;
+        btnElement.disabled = false;
+      }
+    }
+
+    function mostrarToastDescarga(nombreArchivo, rutaCompleta) {
+      ultimaRutaDescargada = rutaCompleta;
+      document.getElementById('toastTitulo').textContent = "¡Descargado!";
+      document.getElementById('toastNombreArchivo').textContent = nombreArchivo;
+      
+      const btnAbrir = document.getElementById('btnAbrirUbicacionToast');
+      btnAbrir.onclick = async () => {
+        try {
+          await fetch("http://127.0.0.1:5000/abrir-comprobante", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ruta: ultimaRutaDescargada })
+          });
+        } catch (e) {
+          alert("Ubicación guardada en:\n" + ultimaRutaDescargada);
+        }
+      };
+
+      const toast = document.getElementById('toastDescarga');
+      toast.style.display = "flex";
+
+      setTimeout(() => {
+        if (toast.style.display === "flex") {
+          toast.style.display = "none";
+        }
+      }, 15000);
+    }
+
+    function cerrarToast() {
+      document.getElementById('toastDescarga').style.display = "none";
+    }
+
     function renderHistorial() {
       actualizarIndicadoresOrdenHistorial();
       const tbody = document.getElementById('tableBodyHistorial');
@@ -1992,6 +2067,11 @@
         const colorFondo = esGalicia ? '#ffe6d0' : '#eee2ff';
         const inlineBg = `style="background-color: ${colorFondo} !important;"`;
 
+        const loteEscaped = (item.lote || "").replace(/'/g, "\\'");
+        const fechaEscaped = (item.fecha || "").replace(/'/g, "\\'");
+        const cuitEscaped = (item.cuit || "").replace(/'/g, "\\'");
+        const beneficiarioEscaped = (item.beneficiario || "").replace(/'/g, "\\'");
+
         return `
           <tr class="text-[10px] ${claseDivisoria}" ${inlineBg}>
             <td class="font-bold" ${inlineBg}>${item.fecha}</td>
@@ -2002,6 +2082,7 @@
             <td class="text-[9px] text-gray-600" ${inlineBg}>${item.cbu}</td>
             <td class="text-center font-bold" ${inlineBg}>${item.cuenta}</td>
             <td class="text-center" ${inlineBg}>
+              <button onclick="dispararDescargaComprobante(this, '${loteEscaped}', '${fechaEscaped}', '${cuitEscaped}', '${beneficiarioEscaped}')" class="btn-sq-micro btn-sq-comprobante" title="Descargar comprobante en Interbanking">📑</button>
               <button onclick="eliminarRegistroHistorial('${item.id}')" class="btn-sq-micro" title="Borrar registro histórico">🗑️</button>
             </td>
           </tr>
@@ -2247,7 +2328,6 @@
       document.getElementById('galiciaManualLoteNameInput').value = `GALICIA MANUAL ${contadorGaliciaManual}`;
 
       renderAuditoriaGaliciaManual(nuevosRegistros, nombreLoteManual);
-
       document.getElementById('inputGaliciaManual').value = "";
       guardarDatosLocalStorage();
     }
