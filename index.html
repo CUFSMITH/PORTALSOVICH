@@ -96,7 +96,7 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
     }
 
-    input[type="text"], input[type="date"], select, textarea {
+    input[type="text"], input[type="date"], input[type="password"], select, textarea {
       background: #ffffff;
       border: 1px solid #9aa7b2;
       border-radius: 5px;
@@ -225,7 +225,7 @@
       outline: none;
     }
 
-    /* MODAL DE PROGRESO DE DESCARGA OCULTA */
+    /* MODAL DE PROGRESO DE DESCARGA */
     #modalProgresoDescarga {
       display: none;
       position: fixed;
@@ -263,7 +263,18 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 
-    /* TOAST DE DESCARGA FINALIZADA */
+    /* MODAL PARA INGRESAR TOKEN */
+    #modalTokenInterbanking {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 100000;
+      align-items: center;
+      justify-content: center;
+    }
+
     #toastDescarga {
       display: none;
       position: fixed;
@@ -286,9 +297,9 @@
 </head>
 <body class="min-h-screen flex p-2 gap-0 overflow-hidden">
 
-  <!-- MODAL DE PROGRESO OCULTO -->
+  <!-- MODAL DE PROGRESO OCULTO CON BOTÓN CANCELAR -->
   <div id="modalProgresoDescarga" class="flex flex-col">
-    <div class="ios-progress-box font-sans space-y-2">
+    <div class="ios-progress-box font-sans space-y-2.5">
       <div class="flex items-center justify-between border-b border-gray-300 pb-1.5">
         <span class="font-bold text-xs text-blue-900 flex items-center gap-1.5">
           <span>⚙️</span> <span>Descargando Comprobante</span>
@@ -299,6 +310,31 @@
       <div class="text-[10px] text-gray-500" id="progresoEstadoTexto">Iniciando proceso en segundo plano...</div>
       <div class="ios-progress-bar-bg">
         <div id="progresoBarraFill" class="ios-progress-bar-fill"></div>
+      </div>
+      <div class="pt-1 flex justify-end">
+        <button onclick="cancelarDescargaEnCurso()" class="ios-btn-red text-[10px] py-1 px-3 font-bold rounded shadow-sm">
+          ✕ Cancelar Proceso
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EXCLUSIVO PARA TOKEN INTERBANKING -->
+  <div id="modalTokenInterbanking" class="flex flex-col">
+    <div class="ios-progress-box font-sans space-y-3 border-2 border-blue-500 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-gray-300 pb-1.5">
+        <span class="font-bold text-xs text-blue-900 flex items-center gap-1.5">
+          <span>🔐</span> <span>Seguridad Interbanking</span>
+        </span>
+        <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold font-mono">TOKEN REQUERIDO</span>
+      </div>
+      <p class="text-[11px] text-gray-700 leading-tight">
+        Interbanking solicita tu código de seguridad / Token para continuar:
+      </p>
+      <input type="password" id="inputTokenInterbanking" maxlength="8" class="w-full text-center font-mono font-black tracking-widest text-lg p-1.5 border-2 border-blue-600 rounded bg-white shadow-inner" placeholder="••••••" autofocus onkeydown="if(event.key==='Enter') enviarTokenAlBot()" />
+      <div class="flex justify-end gap-2 pt-1 border-t border-gray-200">
+        <button onclick="cancelarDescargaEnCurso()" class="ios-btn text-xs py-1 px-2.5 rounded">Cancelar</button>
+        <button onclick="enviarTokenAlBot()" class="ios-btn-blue text-xs py-1 px-3.5 font-bold rounded">Confirmar Token</button>
       </div>
     </div>
   </div>
@@ -449,7 +485,6 @@
         <fieldset class="border border-[#b8c2cc] p-3 rounded-lg bg-white shadow-sm space-y-2">
           <legend class="font-bold text-xs text-blue-900 px-1.5">📋 2. Pagos Manuales / Directos</legend>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            
             <div class="space-y-2 border border-gray-300 p-2.5 rounded-lg bg-[#f9fafb] flex flex-col justify-between">
               <div class="space-y-1.5">
                 <div class="flex justify-between items-center">
@@ -475,7 +510,6 @@
               </div>
               <button onclick="procesarManualArchivo()" class="ios-btn w-full font-bold py-1 text-xs mt-1">🚀 PROCESAR Y AGREGAR</button>
             </div>
-
           </div>
         </fieldset>
 
@@ -653,7 +687,6 @@
       </div>
 
       <div class="p-3 space-y-3 bg-[#f7f9fa]">
-        
         <fieldset class="bg-white p-3 border border-[#a8b4be] rounded-xl shadow-sm space-y-2.5">
           <legend class="font-bold text-xs text-blue-900 px-1.5">🔍 FILTROS AVANZADOS EN TIEMPO REAL</legend>
           
@@ -798,8 +831,8 @@
 
     let modoEdicionLotes = false;
     let datosMemoriaExcel = [];
-
     let ultimaRutaDescargada = "";
+    let pollingTokenInterval = null;
 
     window.onload = function() {
       cargarDatosLocalStorage();
@@ -836,15 +869,9 @@
           contadorManuales = parsed.contadorManuales || 1;
           contadorGalicia = parsed.contadorGalicia || 1;
           contadorGaliciaManual = parsed.contadorGaliciaManual || 1;
-          if (parsed.fechaSeleccionada) {
-            fechaSeleccionada = new Date(parsed.fechaSeleccionada);
-          }
-          if (parsed.ordenHistorialCampo) {
-            ordenHistorialCampo = parsed.ordenHistorialCampo;
-          }
-          if (parsed.ordenHistorialDireccion) {
-            ordenHistorialDireccion = parsed.ordenHistorialDireccion;
-          }
+          if (parsed.fechaSeleccionada) fechaSeleccionada = new Date(parsed.fechaSeleccionada);
+          if (parsed.ordenHistorialCampo) ordenHistorialCampo = parsed.ordenHistorialCampo;
+          if (parsed.ordenHistorialDireccion) ordenHistorialDireccion = parsed.ordenHistorialDireccion;
         } catch(e) {
           console.error("Error al cargar localstorage", e);
         }
@@ -1023,9 +1050,7 @@
         const textoBloque = rawText.substring(actual.index, finBloque);
         let cuentaOriginante = extraerCuentaOriginante(textoBloque);
 
-        if (!cuentaOriginante && textoBloque.includes('615')) {
-          cuentaOriginante = '615';
-        }
+        if (!cuentaOriginante && textoBloque.includes('615')) cuentaOriginante = '615';
 
         let nombreTitular = "", importe = "0,00";
         const matchMontoTitular = textoBloque.match(/(\d{22})[\s\S]*?\r?\n\s*([A-Z0-9\s\.\,\'\-]+?)\t?\s+([\d\.\,]+)\s+\d{2}\/\d{2}\/\d{4}/i);
@@ -1225,7 +1250,6 @@
 
     function agregarAlConsolidadoDiario(nombreLote, nuevosDatos, esManual, customId = null, esGaliciaManual = false) {
       if (nuevosDatos.length === 0) return null;
-      
       const nuevoId = customId !== null ? customId : (Date.now() + Math.random());
       
       const procesadosConEstado = nuevosDatos.map(reg => ({
@@ -1511,7 +1535,6 @@
       }
     }
 
-    // --- RESPALDO JSON ---
     function exportarRespaldoJSON() {
       if (historialPagos.length === 0 && lotesConsolidados.length === 0) {
         return alert("No hay datos cargados para exportar respaldo, bro.");
@@ -1544,16 +1567,11 @@
       reader.onload = function(e) {
         try {
           const datosImportados = JSON.parse(e.target.result);
-          
-          if (!datosImportados.historialPagos) {
-            alert("El archivo no tiene un formato de respaldo válido.");
-            return;
-          }
+          if (!datosImportados.historialPagos) return alert("El archivo no tiene un formato de respaldo válido.");
 
-          if (confirm(`Se encontraron ${datosImportados.historialPagos.length} registros en el archivo. ¿Deseás fusionarlos con tu historial actual?`)) {
+          if (confirm(`Se encontraron ${datosImportados.historialPagos.length} registros. ¿Deseás fusionarlos con tu historial?`)) {
             const idsExistentes = new Set(historialPagos.map(h => h.id));
             const nuevos = datosImportados.historialPagos.filter(h => !idsExistentes.has(h.id));
-
             historialPagos = [...historialPagos, ...nuevos];
             
             if (datosImportados.lotesConsolidados && datosImportados.lotesConsolidados.length > 0) {
@@ -1565,11 +1583,10 @@
             guardarDatosLocalStorage();
             renderConsolidadoDiario();
             renderHistorial();
-            alert(`¡Se importaron ${nuevos.length} pagos nuevos al historial con éxito!`);
+            alert(`¡Se importaron ${nuevos.length} pagos nuevos con éxito!`);
           }
         } catch (err) {
           alert("Error al procesar el archivo JSON de respaldo.");
-          console.error(err);
         }
       };
       reader.readAsText(file);
@@ -1600,14 +1617,9 @@
       let matchTextoMes = strLower.match(/^(\d{1,2})[\/\-\s]([a-z]{3})(?:[\/\-\s](\d{2,4}))?$/);
       if (matchTextoMes) {
         let dia = matchTextoMes[1].padStart(2, '0');
-        let mesStr = matchTextoMes[2];
+        let mesNum = mapaMeses[matchTextoMes[2]];
         let anioStr = matchTextoMes[3] || new Date().getFullYear().toString();
-        let mesNum = mapaMeses[mesStr];
-
-        if (mesNum) {
-          let yy = anioStr.length === 4 ? anioStr.slice(-2) : anioStr;
-          return `${dia}/${mesNum}/${yy}`;
-        }
+        if (mesNum) return `${dia}/${mesNum}/${anioStr.slice(-2)}`;
       }
 
       if (str.includes('/') || str.includes('-')) {
@@ -1616,27 +1628,10 @@
           let p1 = partes[0].padStart(2, '0');
           let p2 = partes[1].padStart(2, '0');
           let p3 = partes[2] || new Date().getFullYear().toString();
-
-          if (p1.length === 4) {
-            let yy = p1.slice(-2);
-            return `${p3.padStart(2, '0')}/${p2}/${yy}`;
-          }
-
-          if (!isNaN(p1) && !isNaN(p2)) {
-            let yy = p3.length === 4 ? p3.slice(-2) : p3;
-            return `${p1}/${p2}/${yy}`;
-          }
+          if (p1.length === 4) return `${p3.padStart(2, '0')}/${p2}/${p1.slice(-2)}`;
+          if (!isNaN(p1) && !isNaN(p2)) return `${p1}/${p2}/${p3.slice(-2)}`;
         }
       }
-
-      let dateObj = new Date(str);
-      if (!isNaN(dateObj.getTime()) && str.length > 5) {
-        let dd = String(dateObj.getDate()).padStart(2, '0');
-        let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        let yy = String(dateObj.getFullYear()).slice(-2);
-        return `${dd}/${mm}/${yy}`;
-      }
-
       return null;
     }
 
@@ -1648,25 +1643,18 @@
       reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array', cellDates: true, dateNF: 'yyyy-mm-dd' });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
-        if (rows.length === 0) {
-          alert("El archivo Excel está vacío.");
-          return;
-        }
+        if (rows.length === 0) return alert("El archivo Excel está vacío.");
 
         let fechaActualArrastre = obtenerFechaFormatted();
         let loteActual = "EXCEL IMPORTADO";
         let cuentaActual = "S/D";
-        
         datosMemoriaExcel = [];
 
         rows.forEach((row) => {
           if (!row || row.length === 0) return;
-
           const col0 = row[0] ? row[0].toString().trim() : "";
           const col1 = row[1] ? row[1].toString().trim() : "";
           const col2 = row[2] ? row[2].toString().trim() : "";
@@ -1674,24 +1662,18 @@
           const col4 = row[4] ? row[4].toString().trim() : "";
           const col5 = row[5] ? row[5].toString().trim() : "";
 
-          if (col1.toUpperCase() === "CUIT" || col2.toUpperCase() === "APELLIDO" || col2.toUpperCase() === "BENEFICIARIO") {
-            return;
-          }
+          if (col1.toUpperCase() === "CUIT" || col2.toUpperCase() === "APELLIDO" || col2.toUpperCase() === "BENEFICIARIO") return;
 
           if (col0) {
             let fechaDetectada = parsearFechaUniversal(col0);
-            if (fechaDetectada) {
-              fechaActualArrastre = fechaDetectada;
-            }
+            if (fechaDetectada) fechaActualArrastre = fechaDetectada;
           }
 
           if (col0 && !isNaN(col0) && !col0.includes('/') && !col0.includes('-') && col0.length < 10) {
             loteActual = col0;
           }
 
-          if (col5 && col5.toUpperCase() !== "CTA") {
-            cuentaActual = col5;
-          }
+          if (col5 && col5.toUpperCase() !== "CTA") cuentaActual = col5;
 
           let cuit = col1;
           let beneficiario = col2;
@@ -1718,32 +1700,21 @@
         });
 
         event.target.value = "";
-
-        if (datosMemoriaExcel.length > 0) {
-          renderPanelPrevisualizacionExcel();
-        } else {
-          alert("No se detectaron registros válidos de pagos en el archivo Excel.");
-          descartarPrevisualizacionExcel();
-        }
+        if (datosMemoriaExcel.length > 0) renderPanelPrevisualizacionExcel();
+        else alert("No se detectaron pagos válidos.");
       };
       reader.readAsArrayBuffer(file);
     }
 
     function renderPanelPrevisualizacionExcel() {
       const panel = document.getElementById('panelPrevisualizacionExcel');
-      const countLabel = document.getElementById('previewExcelCount');
-      const amountLabel = document.getElementById('previewExcelAmount');
-      const tbody = document.getElementById('tableBodyPreviewExcel');
-
       let montoTotalTemp = 0;
-      datosMemoriaExcel.forEach(item => {
-        montoTotalTemp += parsearImporteANumero(item.importe);
-      });
+      datosMemoriaExcel.forEach(item => { montoTotalTemp += parsearImporteANumero(item.importe); });
 
-      countLabel.textContent = datosMemoriaExcel.length;
-      amountLabel.textContent = `$${montoTotalTemp.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('previewExcelCount').textContent = datosMemoriaExcel.length;
+      document.getElementById('previewExcelAmount').textContent = `$${montoTotalTemp.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-      tbody.innerHTML = datosMemoriaExcel.map(item => `
+      document.getElementById('tableBodyPreviewExcel').innerHTML = datosMemoriaExcel.map(item => `
         <tr class="text-[10px]">
           <td class="font-bold">${item.fecha}</td>
           <td class="font-bold text-blue-900">${item.lote}</td>
@@ -1760,22 +1731,17 @@
 
     function confirmarImportacionExcel() {
       if (datosMemoriaExcel.length === 0) return;
-
-      const cantidadImportada = datosMemoriaExcel.length;
       historialPagos = [...historialPagos, ...datosMemoriaExcel];
       guardarDatosLocalStorage();
-
       datosMemoriaExcel = [];
       document.getElementById('panelPrevisualizacionExcel').classList.add('hidden');
-
       renderHistorial();
-      alert(`¡Se confirmaron e importaron ${cantidadImportada} registros al Historial General con éxito!`);
+      alert("¡Importado al historial con éxito!");
     }
 
     function descartarPrevisualizacionExcel() {
       datosMemoriaExcel = [];
       document.getElementById('panelPrevisualizacionExcel').classList.add('hidden');
-      document.getElementById('tableBodyPreviewExcel').innerHTML = '';
     }
 
     function ordenarHistorial(campo) {
@@ -1783,26 +1749,16 @@
         ordenHistorialDireccion = ordenHistorialDireccion === 'asc' ? 'desc' : 'asc';
       } else {
         ordenHistorialCampo = campo;
-        if (campo === 'fecha' || campo === 'importe') {
-          ordenHistorialDireccion = 'desc';
-        } else {
-          ordenHistorialDireccion = 'asc';
-        }
+        ordenHistorialDireccion = (campo === 'fecha' || campo === 'importe') ? 'desc' : 'asc';
       }
       guardarDatosLocalStorage();
       renderHistorial();
     }
 
     function actualizarIndicadoresOrdenHistorial() {
-      const campos = ['fecha', 'lote', 'cuit', 'beneficiario', 'importe', 'cbu', 'cuenta'];
-      campos.forEach(c => {
+      ['fecha', 'lote', 'cuit', 'beneficiario', 'importe', 'cbu', 'cuenta'].forEach(c => {
         const el = document.getElementById(`sortHistorial_${c}`);
-        if (!el) return;
-        if (ordenHistorialCampo === c) {
-          el.textContent = ordenHistorialDireccion === 'asc' ? ' ▲' : ' ▼';
-        } else {
-          el.textContent = '';
-        }
+        if (el) el.textContent = ordenHistorialCampo === c ? (ordenHistorialDireccion === 'asc' ? ' ▲' : ' ▼') : '';
       });
     }
 
@@ -1817,78 +1773,25 @@
 
       const filtrados = historialPagos.filter(item => {
         const itemDateObj = convertirFechaAObj(item.fecha);
+        let cumpleDesde = !objDesde || itemDateObj >= objDesde;
+        let cumpleHasta = !objHasta || itemDateObj <= objHasta;
+        let cumpleCuenta = !fCuenta || item.cuenta.toUpperCase().includes(fCuenta);
+        let cumpleGeneral = !fGeneral || `${item.lote} ${item.cuit} ${item.beneficiario} ${item.importe} ${item.cbu}`.toUpperCase().includes(fGeneral);
 
-        let cumpleDesde = true;
-        if (objDesde) {
-          cumpleDesde = itemDateObj >= objDesde;
-        }
-
-        let cumpleHasta = true;
-        if (objHasta) {
-          cumpleHasta = itemDateObj <= objHasta;
-        }
-
-        const cumpleFecha = cumpleDesde && cumpleHasta;
-        const cumpleCuenta = !fCuenta || item.cuenta.toUpperCase().includes(fCuenta);
-
-        let cumpleGeneral = true;
-        if (fGeneral) {
-          const cadenaCampos = `${item.lote} ${item.cuit} ${item.beneficiario} ${item.importe} ${item.cbu}`.toUpperCase();
-          cumpleGeneral = cadenaCampos.includes(fGeneral);
-        }
-
-        return cumpleFecha && cumpleCuenta && cumpleGeneral;
+        return cumpleDesde && cumpleHasta && cumpleCuenta && cumpleGeneral;
       });
 
       filtrados.sort((a, b) => {
         let comp = 0;
+        if (ordenHistorialCampo === 'fecha') comp = convertirFechaAObj(a.fecha) - convertirFechaAObj(b.fecha);
+        else if (ordenHistorialCampo === 'beneficiario') comp = (a.beneficiario || "").localeCompare(b.beneficiario || "", 'es', { numeric: true, sensitivity: 'base' });
+        else if (ordenHistorialCampo === 'importe') comp = parsearImporteANumero(a.importe) - parsearImporteANumero(b.importe);
+        else if (ordenHistorialCampo === 'lote') comp = (a.lote || "").localeCompare(b.lote || "", 'es', { numeric: true, sensitivity: 'base' });
+        else if (ordenHistorialCampo === 'cuit') comp = (a.cuit || "").localeCompare(b.cuit || "");
+        else if (ordenHistorialCampo === 'cbu') comp = (a.cbu || "").localeCompare(b.cbu || "");
+        else if (ordenHistorialCampo === 'cuenta') comp = (a.cuenta || "").localeCompare(b.cuenta || "", 'es', { sensitivity: 'base' });
 
-        if (ordenHistorialCampo === 'fecha') {
-          const dateA = convertirFechaAObj(a.fecha);
-          const dateB = convertirFechaAObj(b.fecha);
-          comp = dateA - dateB;
-        } else if (ordenHistorialCampo === 'beneficiario') {
-          const valA = (a.beneficiario || "").toString().trim();
-          const valB = (b.beneficiario || "").toString().trim();
-          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
-        } else if (ordenHistorialCampo === 'importe') {
-          const impA = parsearImporteANumero(a.importe);
-          const impB = parsearImporteANumero(b.importe);
-          comp = impA - impB;
-        } else if (ordenHistorialCampo === 'lote') {
-          const valA = (a.lote || "").toString().trim();
-          const valB = (b.lote || "").toString().trim();
-          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
-        } else if (ordenHistorialCampo === 'cuit') {
-          const valA = (a.cuit || "").toString().trim();
-          const valB = (b.cuit || "").toString().trim();
-          comp = valA.localeCompare(valB, undefined, { numeric: true });
-        } else if (ordenHistorialCampo === 'cbu') {
-          const valA = (a.cbu || "").toString().trim();
-          const valB = (b.cbu || "").toString().trim();
-          comp = valA.localeCompare(valB, undefined, { numeric: true });
-        } else if (ordenHistorialCampo === 'cuenta') {
-          const valA = (a.cuenta || "").toString().trim();
-          const valB = (b.cuenta || "").toString().trim();
-          comp = valA.localeCompare(valB, 'es', { numeric: true, sensitivity: 'base' });
-        }
-
-        if (comp !== 0) {
-          return ordenHistorialDireccion === 'asc' ? comp : -comp;
-        }
-
-        if (ordenHistorialCampo !== 'fecha') {
-          const dateA = convertirFechaAObj(a.fecha);
-          const dateB = convertirFechaAObj(b.fecha);
-          if (dateB - dateA !== 0) return dateB - dateA;
-        }
-
-        const loteA = (a.lote || "").toString().toUpperCase();
-        const loteB = (b.lote || "").toString().toUpperCase();
-        const compLotes = loteA.localeCompare(loteB, undefined, { numeric: true, sensitivity: 'base' });
-        if (compLotes !== 0) return compLotes;
-
-        return (b.id || 0) - (a.id || 0);
+        return ordenHistorialDireccion === 'asc' ? comp : -comp;
       });
 
       return filtrados;
@@ -1905,55 +1808,102 @@
       return new Date(anio, mes, dia);
     }
 
-    // --- MANEJO DEL MODAL DE PROGRESO FLUIDO ---
+    // --- PROGRESO, CANCELACIÓN Y TOKEN DINÁMICO ---
     let intervaloProgreso = null;
 
     function iniciarModalProgreso(beneficiario) {
       const modal = document.getElementById('modalProgresoDescarga');
-      const detProv = document.getElementById('progresoDetalleProveedor');
-      const estadoTxt = document.getElementById('progresoEstadoTexto');
-      const fillBar = document.getElementById('progresoBarraFill');
-      const pctTxt = document.getElementById('progresoPorcentaje');
-
-      detProv.textContent = beneficiario || "Proveedor";
-      estadoTxt.textContent = "Conectando con Interbanking (SIB1)...";
-      fillBar.style.width = "10%";
-      pctTxt.textContent = "10%";
+      document.getElementById('progresoDetalleProveedor').textContent = beneficiario || "Proveedor";
+      document.getElementById('progresoEstadoTexto').textContent = "Conectando con Interbanking (SIB1)...";
+      document.getElementById('progresoBarraFill').style.width = "10%";
+      document.getElementById('progresoPorcentaje').textContent = "10%";
       modal.style.display = "flex";
 
       let avance = 10;
       clearInterval(intervaloProgreso);
       intervaloProgreso = setInterval(() => {
         if (avance < 90) {
-          avance += (avance < 50 ? 8 : 4);
-          fillBar.style.width = `${avance}%`;
-          pctTxt.textContent = `${avance}%`;
+          avance += (avance < 50 ? 8 : 3);
+          document.getElementById('progresoBarraFill').style.width = `${avance}%`;
+          document.getElementById('progresoPorcentaje').textContent = `${avance}%`;
 
-          if (avance > 30 && avance < 60) {
-            estadoTxt.textContent = "Autenticando y completando filtros...";
-          } else if (avance >= 60) {
-            estadoTxt.textContent = "Generando y descargando archivo...";
+          if (avance > 35 && avance < 65) {
+            document.getElementById('progresoEstadoTexto').textContent = "Autenticando y configurando filtros...";
+          } else if (avance >= 65) {
+            document.getElementById('progresoEstadoTexto').textContent = "Descargando comprobante oficial...";
           }
         }
       }, 700);
+
+      // Iniciar escucha para detectar si el servidor pide token
+      iniciarMonitoreoToken();
+    }
+
+    function iniciarMonitoreoToken() {
+      clearInterval(pollingTokenInterval);
+      pollingTokenInterval = setInterval(async () => {
+        try {
+          const resp = await fetch("http://127.0.0.1:5000/estado-bot");
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.solicitando_token) {
+              mostrarModalToken();
+            }
+          }
+        } catch (e) {}
+      }, 1200);
+    }
+
+    function mostrarModalToken() {
+      const modalToken = document.getElementById('modalTokenInterbanking');
+      modalToken.style.display = "flex";
+      const inp = document.getElementById('inputTokenInterbanking');
+      inp.value = "";
+      inp.focus();
+    }
+
+    async function enviarTokenAlBot() {
+      const token = document.getElementById('inputTokenInterbanking').value.trim();
+      if (!token) return alert("Escribí los números del token, máquina.");
+
+      try {
+        await fetch("http://127.0.0.1:5000/enviar-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token })
+        });
+        document.getElementById('modalTokenInterbanking').style.display = "none";
+        document.getElementById('progresoEstadoTexto').textContent = "Token aplicado. Continuando descarga...";
+      } catch (e) {
+        alert("Error al enviar el token al bot.");
+      }
+    }
+
+    async function cancelarDescargaEnCurso() {
+      try {
+        await fetch("http://127.0.0.1:5000/cancelar-proceso", { method: "POST" });
+      } catch (e) {}
+      detenerTodoElFlujo();
+    }
+
+    function detenerTodoElFlujo() {
+      clearInterval(intervaloProgreso);
+      clearInterval(pollingTokenInterval);
+      document.getElementById('modalProgresoDescarga').style.display = "none";
+      document.getElementById('modalTokenInterbanking').style.display = "none";
     }
 
     function finalizarModalProgreso() {
       clearInterval(intervaloProgreso);
-      const fillBar = document.getElementById('progresoBarraFill');
-      const pctTxt = document.getElementById('progresoPorcentaje');
-      const estadoTxt = document.getElementById('progresoEstadoTexto');
-
-      fillBar.style.width = "100%";
-      pctTxt.textContent = "100%";
-      estadoTxt.textContent = "¡Comprobante completado!";
-
+      clearInterval(pollingTokenInterval);
+      document.getElementById('progresoBarraFill').style.width = "100%";
+      document.getElementById('progresoPorcentaje').textContent = "100%";
+      document.getElementById('progresoEstadoTexto').textContent = "¡Comprobante completado!";
       setTimeout(() => {
         document.getElementById('modalProgresoDescarga').style.display = "none";
-      }, 500);
+      }, 450);
     }
 
-    // --- INTEGRACIÓN: BOTÓN DE DESCARGA CON PYTHON BOT (OCULTO) ---
     async function dispararDescargaComprobante(btnElement, lote, fecha, cuit, beneficiario) {
       const textoOriginal = btnElement.innerHTML;
       btnElement.innerHTML = '⏳';
@@ -1978,10 +1928,11 @@
         mostrarToastDescarga(resultado.nombre_archivo, resultado.ruta_completa);
 
       } catch (err) {
-        clearInterval(intervaloProgreso);
-        document.getElementById('modalProgresoDescarga').style.display = "none";
+        detenerTodoElFlujo();
         console.error(err);
-        alert(`❌ Error al descargar comprobante:\n${err.message}\n\nAsegurate de que el bot en segundo plano esté activo.`);
+        if (!err.message.includes("cancelada")) {
+          alert(`❌ Error al descargar comprobante:\n${err.message}`);
+        }
       } finally {
         btnElement.innerHTML = textoOriginal;
         btnElement.disabled = false;
@@ -2002,18 +1953,13 @@
             body: JSON.stringify({ ruta: ultimaRutaDescargada })
           });
         } catch (e) {
-          alert("Ubicación guardada en:\n" + ultimaRutaDescargada);
+          alert("Ubicación:\n" + ultimaRutaDescargada);
         }
       };
 
       const toast = document.getElementById('toastDescarga');
       toast.style.display = "flex";
-
-      setTimeout(() => {
-        if (toast.style.display === "flex") {
-          toast.style.display = "none";
-        }
-      }, 15000);
+      setTimeout(() => { if (toast.style.display === "flex") toast.style.display = "none"; }, 15000);
     }
 
     function cerrarToast() {
@@ -2034,11 +1980,8 @@
       }
 
       const filtrados = obtenerRegistrosFiltradosHistorial();
-
       let montoTotalFiltrado = 0;
-      filtrados.forEach(item => {
-        montoTotalFiltrado += parsearImporteANumero(item.importe);
-      });
+      filtrados.forEach(item => { montoTotalFiltrado += parsearImporteANumero(item.importe); });
 
       countDisplay.textContent = filtrados.length;
       amountDisplay.textContent = montoTotalFiltrado.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2049,12 +1992,8 @@
       }
 
       let fechaAnterior = null;
-
       tbody.innerHTML = filtrados.map((item) => {
-        let esNuevaFecha = false;
-        if (ordenHistorialCampo === 'fecha' && fechaAnterior !== null && fechaAnterior !== item.fecha) {
-          esNuevaFecha = true;
-        }
+        let esNuevaFecha = (ordenHistorialCampo === 'fecha' && fechaAnterior !== null && fechaAnterior !== item.fecha);
         fechaAnterior = item.fecha;
 
         const claseDivisoria = esNuevaFecha ? 'border-nueva-fecha' : '';
@@ -2108,23 +2047,17 @@
 
     function eliminarPagosFiltrados() {
       const filtrados = obtenerRegistrosFiltradosHistorial();
-      
-      if (filtrados.length === 0) {
-        return alert("No hay nada filtrado para borrar, máquina.");
-      }
-
-      if (confirm(`⚠️ ¿Querés eliminar ÚNICAMENTE los ${filtrados.length} registros que tenés filtrados en pantalla?`)) {
+      if (filtrados.length === 0) return alert("No hay nada filtrado para borrar, máquina.");
+      if (confirm(`¿Querés eliminar los ${filtrados.length} registros filtrados?`)) {
         const idsAEliminar = new Set(filtrados.map(f => f.id));
         historialPagos = historialPagos.filter(item => !idsAEliminar.has(item.id));
-        
         guardarDatosLocalStorage();
         renderHistorial();
-        alert(`¡Se eliminaron ${filtrados.length} registros filtrados del historial con éxito!`);
       }
     }
 
     function vaciarHistorial() {
-      if (confirm("⚠️ ¡ADVERTENCIA! ¿Querés borrar TODO el historial de pagos guardado? Esta acción no se puede deshacer.")) {
+      if (confirm("⚠️ ¿Querés borrar TODO el historial de pagos guardado?")) {
         historialPagos = [];
         guardarDatosLocalStorage();
         renderHistorial();
@@ -2133,15 +2066,12 @@
 
     function exportarHistorialExcel() {
       const filtrados = obtenerRegistrosFiltradosHistorial();
-
       if (filtrados.length === 0) return alert("No hay datos filtrados para copiar.");
-
       let textoCopiar = "FECHA\tLOTE\tCUIT\tBENEFICIARIO\tIMPORTE\tCBU\tCTA\n";
       filtrados.forEach(item => {
         textoCopiar += `${item.fecha}\t${item.lote}\t${item.cuit}\t${item.beneficiario}\t${item.importe}\t${item.cbu}\t${item.cuenta}\n`;
       });
-
-      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Historial filtrado copiado al portapapeles con éxito, crack!"));
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Copiado al portapapeles!"));
     }
 
     // --- BANCO GALICIA ---
@@ -2174,38 +2104,27 @@
 
       lineas.forEach(linea => {
         if (!linea.trim() || linea.startsWith('*P3AAG') || linea.startsWith('*FAAG') || linea.length < 71) return;
-
         let apellido = linea.substring(0, 16).trim();
         let cuit = linea.substring(16, 27).trim();
         let cbu = linea.substring(49, 71).trim();
 
         let montoMatch = linea.match(/322(\d{14})PAGO/);
-        let monto = 0;
-        if (montoMatch) {
-          monto = parseFloat(montoMatch[1]) / 100;
-        }
+        let monto = montoMatch ? parseFloat(montoMatch[1]) / 100 : 0;
 
         if (cuit || apellido || cbu || monto > 0) {
-          let importeFormatted = monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           registros.push({
-            cuit: cuit,
-            apellido: apellido,
-            importe: importeFormatted,
-            cbu: cbu,
-            editandoMonto: false,
-            editandoCbu: false
+            cuit, apellido, importe: monto.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            cbu, editandoMonto: false, editandoCbu: false
           });
         }
       });
 
       datosGalicia = registros;
-
       document.getElementById('btnCopiarGalicia').disabled = datosGalicia.length === 0;
       
-      const nombreLoteInput = document.getElementById('galiciaLoteNameInput').value.trim();
-      const nombreLote = nombreLoteInput !== "" ? nombreLoteInput : `GALICIA ${contadorGalicia}`;
+      const inputNom = document.getElementById('galiciaLoteNameInput').value.trim();
+      const nombreLote = inputNom !== "" ? inputNom : `GALICIA ${contadorGalicia++}`;
       loteGaliciaActualId = `GALICIA_LOTE_${Date.now()}`;
-      contadorGalicia++;
 
       const datosFormateados = datosGalicia.map(d => ({
         cuit: d.cuit, n1: d.apellido, n2: d.apellido,
@@ -2220,103 +2139,50 @@
 
     function procesarGaliciaManualTexto() {
       const rawText = document.getElementById('inputGaliciaManual').value;
-      if (!rawText.trim()) return alert("Pegá el texto del pago manual de Galicia, ameo.");
+      if (!rawText.trim()) return alert("Pegá el texto de Galicia.");
 
       const cuentaSeleccionada = document.getElementById('selectCuentaGaliciaManual').value;
       const esCuentaUSD = (cuentaSeleccionada === '133-3');
-
       const inputLoteNombre = document.getElementById('galiciaManualLoteNameInput').value.trim();
-      const nombreLoteManual = inputLoteNombre !== "" ? inputLoteNombre : `GALICIA MANUAL ${contadorGaliciaManual}`;
+      const nombreLoteManual = inputLoteNombre !== "" ? inputLoteNombre : `GALICIA MANUAL ${contadorGaliciaManual++}`;
 
       const bloquesTexto = rawText.split(/(?=US\$\s*[\d\.,]+|\$\s*[\d\.,]+)/i);
       let nuevosRegistros = [];
-
       const regexCuit = /\b(\d{2}-?\d{8}-?\d{1})\b/;
       const regexCbu = /\b(\d{22})\b/;
       const regexMonto = /(?:US\$|\$)\s*([\d\.,]+)/i;
 
-      let fragmentos = bloquesTexto.length > 1 ? bloquesTexto : [rawText];
-
-      fragmentos.forEach(bloque => {
+      (bloquesTexto.length > 1 ? bloquesTexto : [rawText]).forEach(bloque => {
         if (!bloque.trim()) return;
-
         let matchMonto = bloque.match(regexMonto);
         let matchCuit = bloque.match(regexCuit);
         let matchCbu = bloque.match(regexCbu);
 
         let montoStr = matchMonto ? formatearMontoArgentina(matchMonto[1]) : "";
-        let cuitRaw = matchCuit ? matchCuit[1] : "";
-        let cuitLimpio = cuitRaw.replace(/[^0-9]/g, '');
+        let cuitLimpio = matchCuit ? matchCuit[1].replace(/[^0-9]/g, '') : "";
         let cbu = matchCbu ? matchCbu[1] : "";
 
         let lineas = bloque.split('\n').map(l => l.trim()).filter(Boolean);
         let nombre = "";
-
         for (let l of lineas) {
-          if (l.match(regexCuit) || l.match(regexCbu) || l.match(regexMonto) || l.toLowerCase().includes("banco galicia")) {
-            continue;
-          }
-          if (l.length > 2) {
-            nombre = l;
-            break;
-          }
+          if (l.match(regexCuit) || l.match(regexCbu) || l.match(regexMonto) || l.toLowerCase().includes("banco galicia")) continue;
+          if (l.length > 2) { nombre = l; break; }
         }
-
         if (!nombre) nombre = "CRISTIAN VISSANI";
 
         if (cuitLimpio && montoStr) {
           nuevosRegistros.push({
-            cuit: cuitLimpio,
-            n1: nombre,
-            n2: nombre,
-            importe: montoStr,
-            cbu: cbu,
-            cuenta: cuentaSeleccionada,
-            estado: 'VERDE',
-            enviadoAHistorial: false,
-            esGaliciaManualUSD: esCuentaUSD,
-            esGaliciaManual: true,
-            loteManualAsignado: nombreLoteManual
+            cuit: cuitLimpio, n1: nombre, n2: nombre, importe: montoStr, cbu,
+            cuenta: cuentaSeleccionada, estado: 'VERDE', enviadoAHistorial: false,
+            esGaliciaManualUSD: esCuentaUSD, esGaliciaManual: true, loteManualAsignado: nombreLoteManual
           });
         }
       });
 
-      if (nuevosRegistros.length === 0) {
-        let regexGlobalCuit = /\b(\d{2}-?\d{8}-?\d{1}|\d{11})\b/g;
-        let cuitsEncontrados = [...rawText.matchAll(regexGlobalCuit)];
-        let cbusEncontrados = [...rawText.matchAll(/\b\d{22}\b/g)];
-        let montosEncontrados = [...rawText.matchAll(/(?:US\$|\$)\s*([\d\.,]+)/gi)];
-
-        for (let i = 0; i < cuitsEncontrados.length; i++) {
-          let cuitRaw = cuitsEncontrados[i] ? cuitsEncontrados[i][1] : "00000000000";
-          let cuitLimpio = cuitRaw.replace(/[^0-9]/g, '');
-          let cbu = cbusEncontrados[i] ? cbusEncontrados[i][0] : "";
-          let monto = montosEncontrados[i] ? formatearMontoArgentina(montosEncontrados[i][1]) : "0,00";
-
-          nuevosRegistros.push({
-            cuit: cuitLimpio,
-            n1: "CRISTIAN VISSANI",
-            n2: "CRISTIAN VISSANI",
-            importe: monto,
-            cbu: cbu,
-            cuenta: cuentaSeleccionada,
-            estado: 'VERDE',
-            enviadoAHistorial: false,
-            esGaliciaManualUSD: esCuentaUSD,
-            esGaliciaManual: true,
-            loteManualAsignado: nombreLoteManual
-          });
-        }
-      }
-
-      if (nuevosRegistros.length === 0) {
-        return alert("No se pudo detectar el CUIT o los datos del pago. Revisá el texto.");
-      }
+      if (nuevosRegistros.length === 0) return alert("No se detectaron datos válidos.");
 
       ultimosGaliciaManualProcesados = nuevosRegistros;
-
       let loteExistente = lotesConsolidados.find(l => l.nombre === nombreLoteManual);
-      
       if (loteExistente) {
         loteExistente.registros.push(...nuevosRegistros);
         renderConsolidadoDiario();
@@ -2324,46 +2190,34 @@
         agregarAlConsolidadoDiario(nombreLoteManual, nuevosRegistros, true, null, true);
       }
 
-      contadorGaliciaManual++;
       document.getElementById('galiciaManualLoteNameInput').value = `GALICIA MANUAL ${contadorGaliciaManual}`;
-
       renderAuditoriaGaliciaManual(nuevosRegistros, nombreLoteManual);
       document.getElementById('inputGaliciaManual').value = "";
       guardarDatosLocalStorage();
     }
 
     function renderAuditoriaGaliciaManual(registros, nombreLote) {
-      const tbody = document.getElementById('galiciaManualPreviewBody');
-      const countSpan = document.getElementById('cntGaliciaManualProcesados');
-      const btnCopiar = document.getElementById('btnCopiarGaliciaManual');
+      document.getElementById('cntGaliciaManualProcesados').textContent = registros.length;
+      document.getElementById('btnCopiarGaliciaManual').disabled = registros.length === 0;
 
-      countSpan.textContent = registros.length;
-      btnCopiar.disabled = registros.length === 0;
-
-      tbody.innerHTML = registros.map(r => {
-        let displayMonto = r.esGaliciaManualUSD ? `US$ ${r.importe}` : `$${r.importe}`;
-        let badgeBg = r.cuenta === '133-3' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-blue-100 text-blue-900 border border-blue-300';
-
-        return `
-          <tr>
-            <td class="font-bold text-blue-900">${r.loteManualAsignado || nombreLote || ''}</td>
-            <td class="font-bold">${r.cuit}</td>
-            <td>${r.n1}</td>
-            <td class="col-right font-bold text-green-700">${displayMonto}</td>
-            <td class="text-center font-bold ${badgeBg} rounded">${r.cuenta}</td>
-          </tr>
-        `;
-      }).join('');
+      document.getElementById('galiciaManualPreviewBody').innerHTML = registros.map(r => `
+        <tr>
+          <td class="font-bold text-blue-900">${r.loteManualAsignado || nombreLote || ''}</td>
+          <td class="font-bold">${r.cuit}</td>
+          <td>${r.n1}</td>
+          <td class="col-right font-bold text-green-700">${r.esGaliciaManualUSD ? `US$ ${r.importe}` : `$${r.importe}`}</td>
+          <td class="text-center font-bold ${r.cuenta === '133-3' ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900'}">${r.cuenta}</td>
+        </tr>
+      `).join('');
     }
 
     function copiarTablaGaliciaManual() {
       if (ultimosGaliciaManualProcesados.length === 0) return;
       let textoCopiar = "LOTE\tCUIT\tAPELLIDO\tIMPORTE\tCBU\tCTA\n";
-      ultimosGaliciaManualProcesados.forEach((d) => {
-        let impStr = d.esGaliciaManualUSD ? `US$ ${d.importe}` : d.importe;
-        textoCopiar += `${d.loteManualAsignado || ''}\t${d.cuit}\t${d.n1}\t${impStr}\t${d.cbu}\t${d.cuenta}\n`;
+      ultimosGaliciaManualProcesados.forEach(d => {
+        textoCopiar += `${d.loteManualAsignado || ''}\t${d.cuit}\t${d.n1}\t${d.esGaliciaManualUSD ? `US$ ${d.importe}` : d.importe}\t${d.cbu}\t${d.cuenta}\n`;
       });
-      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Pagos manuales de Galicia copiados al portapapeles!"));
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Copiado!"));
     }
 
     function toggleEditGalicia(index, campo, loteGaliciaId) {
@@ -2387,11 +2241,6 @@
         datosGalicia[index].editandoCbu = false;
       }
 
-      sincronizarGaliciaConConsolidado(index, campo, nuevoValor, loteGaliciaId);
-      renderGalicia(datosGalicia, loteGaliciaId);
-    }
-
-    function sincronizarGaliciaConConsolidado(index, campo, nuevoValor, loteGaliciaId) {
       const lote = lotesConsolidados.find(l => l.id === loteGaliciaId);
       if (lote && lote.registros[index]) {
         if (campo === 'importe') lote.registros[index].importe = nuevoValor;
@@ -2399,37 +2248,26 @@
         renderConsolidadoDiario();
         guardarDatosLocalStorage();
       }
+      renderGalicia(datosGalicia, loteGaliciaId);
     }
 
     function renderGalicia(lista, loteGaliciaId) {
-      const container = document.getElementById('containerGalicia');
-      const tableBody = document.getElementById('tableBodyGalicia');
       document.getElementById('totalGaliciaCount').textContent = lista.length;
-      container.classList.remove('hidden');
+      document.getElementById('containerGalicia').classList.remove('hidden');
 
-      tableBody.innerHTML = lista.map((r, idx) => {
+      document.getElementById('tableBodyGalicia').innerHTML = lista.map((r, idx) => {
         const celdaMonto = r.editandoMonto ? `
-          <input type="text" 
-                 value="${r.importe}" 
-                 onkeydown="manejarKeydownGalicia(event, ${idx}, 'importe', this.value, '${loteGaliciaId}')" 
-                 onblur="guardarEdicionGalicia(${idx}, 'importe', this.value, '${loteGaliciaId}')" 
-                 class="w-24 text-right border border-blue-500 p-0.5 font-mono text-[10px] font-bold text-green-700 bg-yellow-100 rounded" 
-                 autofocus />
+          <input type="text" value="${r.importe}" onkeydown="manejarKeydownGalicia(event, ${idx}, 'importe', this.value, '${loteGaliciaId}')" onblur="guardarEdicionGalicia(${idx}, 'importe', this.value, '${loteGaliciaId}')" class="w-24 text-right border border-blue-500 p-0.5 font-mono text-[10px] font-bold text-green-700 bg-yellow-100 rounded" autofocus />
         ` : `
           <span class="font-bold text-green-700">$${r.importe}</span>
-          <button onclick="toggleEditGalicia(${idx}, 'importe', '${loteGaliciaId}')" class="btn-sq-micro" title="Editar Importe">✏️</button>
+          <button onclick="toggleEditGalicia(${idx}, 'importe', '${loteGaliciaId}')" class="btn-sq-micro">✏️</button>
         `;
 
         const celdaCbu = r.editandoCbu ? `
-          <input type="text" 
-                 value="${r.cbu}" 
-                 onkeydown="manejarKeydownGalicia(event, ${idx}, 'cbu', this.value, '${loteGaliciaId}')" 
-                 onblur="guardarEdicionGalicia(${idx}, 'cbu', this.value, '${loteGaliciaId}')" 
-                 class="w-44 border border-blue-500 p-0.5 font-mono text-[10px] bg-yellow-100 rounded" 
-                 autofocus />
+          <input type="text" value="${r.cbu}" onkeydown="manejarKeydownGalicia(event, ${idx}, 'cbu', this.value, '${loteGaliciaId}')" onblur="guardarEdicionGalicia(${idx}, 'cbu', this.value, '${loteGaliciaId}')" class="w-44 border border-blue-500 p-0.5 font-mono text-[10px] bg-yellow-100 rounded" autofocus />
         ` : `
           <span>${r.cbu}</span>
-          <button onclick="toggleEditGalicia(${idx}, 'cbu', '${loteGaliciaId}')" class="btn-sq-micro" title="Editar CBU">✏️</button>
+          <button onclick="toggleEditGalicia(${idx}, 'cbu', '${loteGaliciaId}')" class="btn-sq-micro">✏️</button>
         `;
 
         return `
@@ -2439,7 +2277,7 @@
             <td class="col-right">${celdaMonto}</td>
             <td>${celdaCbu}</td>
             <td class="text-center">
-              <button onclick="eliminarRegistroGalicia(${idx}, '${loteGaliciaId}')" class="btn-sq-micro" title="Borrar fila">🗑️</button>
+              <button onclick="eliminarRegistroGalicia(${idx}, '${loteGaliciaId}')" class="btn-sq-micro">🗑️</button>
             </td>
           </tr>
         `;
@@ -2451,14 +2289,10 @@
       const lote = lotesConsolidados.find(l => l.id === loteGaliciaId);
       if (lote) {
         lote.registros.splice(index, 1);
-        if (lote.registros.length === 0) {
-          lotesConsolidados.splice(lotesConsolidados.indexOf(lote), 1);
-          loteGaliciaActualId = null;
-        }
+        if (lote.registros.length === 0) lotesConsolidados.splice(lotesConsolidados.indexOf(lote), 1);
         renderConsolidadoDiario();
         guardarDatosLocalStorage();
       }
-
       document.getElementById('btnCopiarGalicia').disabled = datosGalicia.length === 0;
       renderGalicia(datosGalicia, loteGaliciaId);
     }
@@ -2466,90 +2300,50 @@
     function copiarTablaGalicia() {
       if (datosGalicia.length === 0) return;
       let textoCopiar = "";
-      datosGalicia.forEach((d) => {
-        textoCopiar += `${d.cuit}\t${d.apellido}\t${d.importe}\t${d.cbu}\t288\n`; 
-      });
-
-      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Tabla Galicia copiada con CTA 288, máquina!"));
+      datosGalicia.forEach(d => { textoCopiar += `${d.cuit}\t${d.apellido}\t${d.importe}\t${d.cbu}\t288\n`; });
+      navigator.clipboard.writeText(textoCopiar).then(() => alert("¡Copiado con CTA 288!"));
     }
 
     function compararListasGalicia() {
-      if (datosGalicia.length === 0) {
-        alert('Primero debes procesar el archivo inicial de Galicia.');
-        return;
-      }
+      if (datosGalicia.length === 0) return alert('Primero procesá el archivo base.');
+      const file = document.getElementById('fileGaliciaCompare').files[0];
+      if (!file) return alert('Seleccioná el archivo TXT para comparar.');
 
-      const fileInput = document.getElementById('fileGaliciaCompare');
-      if (!fileInput.files.length) {
-        alert('Seleccioná el archivo TXT que querés comparar.');
-        return;
-      }
-
-      const file = fileInput.files[0];
       const reader = new FileReader();
-
       reader.onload = function(e) {
-        const content = e.target.result;
-        const lineas = content.split('\n');
+        const lineas = e.target.result.split('\n');
         let listaNuevaNombres = [];
-
         lineas.forEach(linea => {
-          if (!linea.trim() || linea.startsWith('*P3AAG') || linea.startsWith('*FAAG') || linea.length < 71) {
-            return;
-          }
-          let apellido = linea.substring(0, 16).trim();
-          if (apellido) {
-            listaNuevaNombres.push(apellido);
-          }
+          if (!linea.trim() || linea.startsWith('*P3AAG') || linea.startsWith('*FAAG') || linea.length < 71) return;
+          let ap = linea.substring(0, 16).trim();
+          if (ap) listaNuevaNombres.push(ap);
         });
 
-        const nombresOriginales = datosGalicia.map(p => p.apellido);
+        const originales = datosGalicia.map(p => p.apellido);
+        const coincidencias = originales.filter(n => listaNuevaNombres.includes(n));
+        const faltantes = originales.filter(n => !listaNuevaNombres.includes(n));
+        const nuevos = listaNuevaNombres.filter(n => !originales.includes(n));
 
-        const coincidencias = nombresOriginales.filter(nombre => listaNuevaNombres.includes(nombre));
-        const faltantes = nombresOriginales.filter(nombre => !listaNuevaNombres.includes(nombre));
-        const nuevos = listaNuevaNombres.filter(nombre => !nombresOriginales.includes(nombre));
-
-        const okCount = coincidencias.length;
-        const errorCount = faltantes.length;
-
-        const badgeResumen = document.getElementById('badgeResumenComp');
-        badgeResumen.textContent = `${okCount} OK | ${errorCount} ERROR`;
-
-        document.getElementById('cntCoincidencias').textContent = okCount;
-        document.getElementById('cntFaltantes').textContent = errorCount;
+        document.getElementById('badgeResumenComp').textContent = `${coincidencias.length} OK | ${faltantes.length} ERROR`;
+        document.getElementById('cntCoincidencias').textContent = coincidencias.length;
+        document.getElementById('cntFaltantes').textContent = faltantes.length;
         document.getElementById('cntNuevos').textContent = nuevos.length;
 
         renderListaComparacion('listaCoincidencias', coincidencias, '#28a745', false);
         renderListaComparacion('listaFaltantes', faltantes, '#dc3545', true);
         renderListaComparacion('listaNuevos', nuevos, '#17a2b8', false);
-
         document.getElementById('resultadoComparacion').classList.remove('hidden');
       };
-
       reader.readAsText(file);
     }
 
     function renderListaComparacion(elementId, items, color, esError) {
       const ul = document.getElementById(elementId);
-      ul.innerHTML = '';
-      if (items.length === 0) {
-        ul.innerHTML = '<li style="color:#777; font-style:italic;">Ninguno</li>';
-        return;
-      }
-      items.forEach(item => {
-        const li = document.createElement('li');
-        li.style.color = color;
-        li.style.fontWeight = 'bold';
-        
-        if (esError) {
-          li.classList.add('item-error');
-          li.textContent = `❌ ${item} (ERROR: No hallado en nuevo TXT)`;
-        } else {
-          li.textContent = item;
-        }
-
-        ul.appendChild(li);
-      });
+      ul.innerHTML = items.length === 0 ? '<li style="color:#777; font-style:italic;">Ninguno</li>' : items.map(item => `
+        <li style="color:${color}; font-weight:bold;" class="${esError ? 'item-error' : ''}">
+          ${esError ? `❌ ${item}` : item}
+        </li>
+      `).join('');
     }
   </script>
 </body>
