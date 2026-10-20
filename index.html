@@ -297,7 +297,7 @@
 </head>
 <body class="min-h-screen flex p-2 gap-0 overflow-hidden">
 
-  <!-- MODAL DE PROGRESO OCULTO CON BOTÓN CANCELAR -->
+  <!-- MODAL DE PROGRESO CON BOTÓN CANCELAR -->
   <div id="modalProgresoDescarga" class="flex flex-col">
     <div class="ios-progress-box font-sans space-y-2.5">
       <div class="flex items-center justify-between border-b border-gray-300 pb-1.5">
@@ -833,6 +833,7 @@
     let datosMemoriaExcel = [];
     let ultimaRutaDescargada = "";
     let pollingTokenInterval = null;
+    let tokenModalAbierto = false;
 
     window.onload = function() {
       cargarDatosLocalStorage();
@@ -1535,6 +1536,7 @@
       }
     }
 
+    // --- RESPALDO JSON ---
     function exportarRespaldoJSON() {
       if (historialPagos.length === 0 && lotesConsolidados.length === 0) {
         return alert("No hay datos cargados para exportar respaldo, bro.");
@@ -1835,18 +1837,18 @@
         }
       }, 700);
 
-      // Iniciar escucha para detectar si el servidor pide token
       iniciarMonitoreoToken();
     }
 
     function iniciarMonitoreoToken() {
+      tokenModalAbierto = false;
       clearInterval(pollingTokenInterval);
       pollingTokenInterval = setInterval(async () => {
         try {
           const resp = await fetch("http://127.0.0.1:5000/estado-bot");
           if (resp.ok) {
             const data = await resp.json();
-            if (data.solicitando_token) {
+            if (data.solicitando_token && !tokenModalAbierto) {
               mostrarModalToken();
             }
           }
@@ -1855,6 +1857,7 @@
     }
 
     function mostrarModalToken() {
+      tokenModalAbierto = true;
       const modalToken = document.getElementById('modalTokenInterbanking');
       modalToken.style.display = "flex";
       const inp = document.getElementById('inputTokenInterbanking');
@@ -1873,6 +1876,7 @@
           body: JSON.stringify({ token })
         });
         document.getElementById('modalTokenInterbanking').style.display = "none";
+        tokenModalAbierto = false;
         document.getElementById('progresoEstadoTexto').textContent = "Token aplicado. Continuando descarga...";
       } catch (e) {
         alert("Error al enviar el token al bot.");
@@ -1887,6 +1891,7 @@
     }
 
     function detenerTodoElFlujo() {
+      tokenModalAbierto = false;
       clearInterval(intervaloProgreso);
       clearInterval(pollingTokenInterval);
       document.getElementById('modalProgresoDescarga').style.display = "none";
@@ -1896,6 +1901,7 @@
     function finalizarModalProgreso() {
       clearInterval(intervaloProgreso);
       clearInterval(pollingTokenInterval);
+      tokenModalAbierto = false;
       document.getElementById('progresoBarraFill').style.width = "100%";
       document.getElementById('progresoPorcentaje').textContent = "100%";
       document.getElementById('progresoEstadoTexto').textContent = "¡Comprobante completado!";
