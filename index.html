@@ -1865,19 +1865,24 @@
       inp.focus();
     }
 
-    async function enviarTokenAlBot() {
+async function enviarTokenAlBot() {
       const token = document.getElementById('inputTokenInterbanking').value.trim();
-      if (!token) return alert("Escribí los números del token, máquina.");
+      if (!token || token.length < 6) {
+        return alert("Por favor ingresá los 6 dígitos del Token de Interbanking.");
+      }
 
       try {
-        await fetch("http://127.0.0.1:5000/enviar-token", {
+        const resp = await fetch("http://127.0.0.1:5000/enviar-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token })
         });
-        document.getElementById('modalTokenInterbanking').style.display = "none";
-        tokenModalAbierto = false;
-        document.getElementById('progresoEstadoTexto').textContent = "Token aplicado. Continuando descarga...";
+        
+        if (resp.ok) {
+          document.getElementById('modalTokenInterbanking').style.display = "none";
+          tokenModalAbierto = false;
+          document.getElementById('progresoEstadoTexto').textContent = "Token enviado. Accediendo a Interbanking...";
+        }
       } catch (e) {
         alert("Error al enviar el token al bot.");
       }
